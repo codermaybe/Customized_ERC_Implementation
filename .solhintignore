@@ -1,0 +1,10 @@
+node_modules/
+cache/
+cache-foundry/
+out/
+ignition/
+test/
+
+# Optionally ignore large or WIP contracts
+# contracts/CustomizedERC721/**
+# contracts/CustomizedERC1155/**

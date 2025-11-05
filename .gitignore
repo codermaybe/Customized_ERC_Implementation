@@ -5,6 +5,10 @@ node_modules
 /cache
 /artifacts
 
+# Foundry files
+/out
+/cache-foundry
+
 # TypeChain files
 /typechain
 /typechain-types

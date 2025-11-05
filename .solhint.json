@@ -1,0 +1,15 @@
+{
+  "extends": "solhint:recommended",
+  "rules": {
+    "indent": "off",
+    "max-line-length": "off",
+    "func-visibility": ["error", { "ignoreConstructors": true }],
+    "no-empty-blocks": "off",
+    "private-vars-leading-underscore": "off",
+    "var-name-mixedcase": "off",
+    "reason-string": "off",
+    "not-rely-on-time": "off",
+    "no-unused-vars": "off",
+    "func-order": "off"
+  }
+}

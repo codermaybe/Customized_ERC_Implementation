@@ -1,0 +1,32 @@
+{
+  "eslint.validate": [
+    "javascript",
+    "javascriptreact",
+    "typescript",
+    "typescriptreact"
+  ],
+  "solidity.linter": "solhint",
+  "solidity.solhintRules": {
+    "indent": "off",
+    "max-line-length": "off",
+    "func-visibility": ["error", { "ignoreConstructors": true }],
+    "no-empty-blocks": "off",
+    "private-vars-leading-underscore": "off",
+    "var-name-mixedcase": "off",
+    "reason-string": "off",
+    "not-rely-on-time": "off",
+    "no-unused-vars": "off",
+    "func-order": "off"
+  },
+  "solhint.enable": false,
+  "solhint.configFile": "${workspaceFolder}/.solhint.json",
+  "solidity.remappings": [
+    "forge-std/=lib/forge-std/src/",
+    "@openzeppelin/=node_modules/@openzeppelin/"
+  ],
+  "solidity.packageDefaultDependenciesDirectory": "node_modules",
+  "[solidity]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.formatOnSave": true
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "name": "Hardhat Dev (RW)",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22",
+  "workspaceFolder": "/work",
+  "workspaceMount": "source=${localWorkspaceFolder},target=/work,type=bind",
+  "mounts": [
+    "type=volume,source=customized_rw_node_modules,target=/work/node_modules",
+    "type=volume,source=customized_npm_cache,target=/home/node/.npm",
+    "type=volume,source=customized_npm_global,target=/home/node/.npm-global",
+    "type=volume,source=customized_codex_home,target=/home/node/.codex",
+    "type=volume,source=customized_claude_home,target=/home/node/.claude",
+    "type=bind,source=${localEnv:USERPROFILE}/.codex,target=/home/node/.codex-ro,readonly",
+    "type=bind,source=${localEnv:USERPROFILE}/.claude,target=/home/node/.claude-ro,readonly"
+  ],
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {}
+  },
+  "remoteUser": "node",
+  "containerEnv": {
+    "NODE_ENV": "development"
+  },
+  "forwardPorts": [8545],
+  "postCreateCommand": "bash -lc 'set -e; sudo mkdir -p /work/node_modules /home/node/.npm /home/node/.npm-global /home/node/.codex /home/node/.claude && sudo chown -R node:node /work/node_modules /home/node/.npm /home/node/.npm-global /home/node/.codex /home/node/.claude; if [ -d /home/node/.codex-ro ]; then cp -an /home/node/.codex-ro/. /home/node/.codex/ || true; fi; if [ -d /home/node/.claude-ro ]; then cp -an /home/node/.claude-ro/. /home/node/.claude/ || true; fi; sudo apt-get update && sudo apt-get install -y build-essential pkg-config python3 curl ca-certificates; export NPM_CONFIG_PREFIX=/home/node/.npm-global; npm config set fund false --global || true; npm config set audit false --global || true; npm install -g \"@openai/codex\" || true; if timeout 8s curl -I --connect-timeout 3 -m 5 -sS https://api-optimize.packycode.com >/dev/null 2>&1; then (npm install -g \"@anthropic-ai/claude-code\" || npm install -g github:anthropic-ai/claude-code) || true; else echo \"[devcontainer] skip claude-code preinstall (network)\"; fi; sudo ln -sf /home/node/.npm-global/bin/codex /usr/local/bin/codex || true; if command -v claude-code >/dev/null 2>&1; then sudo ln -sf /home/node/.npm-global/bin/claude-code /usr/local/bin/claude-code || true; fi; npm install -g solhint || true; sudo ln -sf /home/node/.npm-global/bin/solhint /usr/local/bin/solhint || true; curl -L https://foundry.paradigm.xyz | bash && export PATH='$HOME/.foundry/bin:$PATH' && foundryup; cd /work && npm ci'",
+  "postStartCommand": "bash -lc 'set -e; sudo mkdir -p /home/node/.npm-global /home/node/.codex /home/node/.claude && sudo chown -R node:node /home/node/.npm-global /home/node/.codex /home/node/.claude; if [ -d /home/node/.codex-ro ]; then cp -an /home/node/.codex-ro/. /home/node/.codex/ || true; fi; if [ -d /home/node/.claude-ro ]; then cp -an /home/node/.claude-ro/. /home/node/.claude/ || true; fi; export NPM_CONFIG_PREFIX=/home/node/.npm-global; if ! command -v codex >/dev/null 2>&1; then npm install -g \"@openai/codex\" || true; sudo ln -sf /home/node/.npm-global/bin/codex /usr/local/bin/codex || true; fi; if ! command -v claude-code >/dev/null 2>&1; then if timeout 8s curl -I --connect-timeout 3 -m 5 -sS https://api-optimize.packycode.com >/dev/null 2>&1; then (npm install -g \"@anthropic-ai/claude-code\" || npm install -g github:anthropic-ai/claude-code) || true; else echo \"[devcontainer] skip claude-code install (network)\"; fi; if command -v claude-code >/dev/null 2>&1; then sudo ln -sf /home/node/.npm-global/bin/claude-code /usr/local/bin/claude-code || true; fi; fi'",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "NomicFoundation.hardhat-solidity",
+        "esbenp.prettier-vscode",
+        "dbaeumer.vscode-eslint"
+      ]
+    }
+  }
+}

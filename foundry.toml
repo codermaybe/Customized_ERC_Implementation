@@ -1,0 +1,21 @@
+[profile.default]
+# Align Foundry to existing Hardhat layout
+src = "contracts"
+test = "test"
+
+# Use both local lib/ and npm node_modules as libraries
+libs = ["lib", "node_modules"]
+
+# Match Hardhat compiler + optimizer settings
+solc_version = "0.8.28"
+optimizer = true
+optimizer_runs = 200
+
+# Remap OpenZeppelin imports to node_modules
+remappings = [
+  "@openzeppelin/=node_modules/@openzeppelin/",
+  "forge-std/=lib/forge-std/src/",
+]
+
+# Separate cache to avoid confusion with Hardhat's cache folder
+cache_path = "cache-foundry"
