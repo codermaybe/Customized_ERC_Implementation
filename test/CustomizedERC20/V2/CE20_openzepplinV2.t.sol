@@ -55,7 +55,7 @@ contract CE20_OPV2Test is Test {
     }
 
     // 2) 铸造/转账/销毁（与 CE20V2 顺序一致）
-    function test_mint_transfer_burn_skeleton() public {
+    function test_mint_transfer_burn() public {
         vm.prank(accountOwner);
         tokenUnderTest.mint(accountAlice, 10000);
 
@@ -70,7 +70,7 @@ contract CE20_OPV2Test is Test {
     }
 
     // 3) 转账到零地址应 revert（OZ v5: ERC20InvalidReceiver(address(0)）
-    function test_transfer_zero_to_reverts_skeleton() public {
+    function test_transfer_zero_to_reverts() public {
         vm.prank(accountOwner);
         tokenUnderTest.mint(accountAlice, 10000);
 
@@ -85,7 +85,7 @@ contract CE20_OPV2Test is Test {
     }
 
     // 4) 授权 + transferFrom 扣减额度
-    function test_approve_and_transferFrom_skeleton() public {
+    function test_approve_and_transferFrom() public {
         vm.prank(accountOwner);
         tokenUnderTest.mint(accountAlice, 10000);
 
@@ -100,7 +100,7 @@ contract CE20_OPV2Test is Test {
     }
 
     // 5) increase/decreaseAllowance（OZ v5 无该接口，使用 approve 复现语义）
-    function test_increase_decrease_allowance_skeleton() public {
+    function test_increase_decrease_allowance() public {
         vm.startPrank(accountAlice);
         tokenUnderTest.approve(accountSpender, 3);
         uint256 cur = tokenUnderTest.allowance(accountAlice, accountSpender);
@@ -112,7 +112,7 @@ contract CE20_OPV2Test is Test {
     }
 
     // 6) Permit (EIP-2612)
-    function test_permit_skeleton() public {
+    function test_permit_success() public {
         address permitOwner = accountOwner;
         uint256 nonce = tokenUnderTest.nonces(permitOwner);
         uint256 previousAllowance = tokenUnderTest.allowance(
@@ -151,7 +151,7 @@ contract CE20_OPV2Test is Test {
     }
 
     // 7) 无限授权（uint256.max）：transferFrom 后 allowance 不应减少
-    function test_infiniteAllowance_transferFrom_doesNotDecrease_skeleton()
+    function test_infiniteAllowance_transferFrom_doesNotDecrease()
         public
     {
         vm.prank(accountOwner);
@@ -167,7 +167,7 @@ contract CE20_OPV2Test is Test {
     }
 
     // 8) decreaseAllowance 超额减少应当 revert（OZ 适配：花费超额应当 revert ERC20InsufficientAllowance）
-    function test_decreaseAllowance_revertsWhenExceeds_skeleton() public {
+    function test_decreaseAllowance_revertsWhenExceeds() public {
         vm.startPrank(accountAlice);
         tokenUnderTest.approve(accountSpender, 1);
         vm.stopPrank();
@@ -185,7 +185,7 @@ contract CE20_OPV2Test is Test {
     }
 
     // 9) onlyOwner：非所有者 mint 应当 revert（Ownable）
-    function test_mint_onlyOwner_revertsForNonOwner_skeleton() public {
+    function test_mint_onlyOwner_revertsForNonOwner() public {
         vm.prank(accountAlice);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -197,7 +197,7 @@ contract CE20_OPV2Test is Test {
     }
 
     // 10) burnFrom：应减少持有人余额、总量与授权额度
-    function test_burnFrom_decreasesSupplyAndAllowance_skeleton() public {
+    function test_burnFrom_decreasesSupplyAndAllowance() public {
         vm.prank(accountOwner);
         tokenUnderTest.mint(accountAlice, 5);
 
@@ -213,7 +213,7 @@ contract CE20_OPV2Test is Test {
     }
 
     // 11) permit 过期应当 revert（PermitExpired）
-    function test_permit_expired_reverts_skeleton() public {
+    function test_permit_expired_reverts() public {
         address owner = accountOwner;
         uint256 value = 1;
         uint256 deadline = block.timestamp - 1;
@@ -233,7 +233,7 @@ contract CE20_OPV2Test is Test {
     }
 
     // 12) permit 使用错误签名者应当 revert（InvalidSignature）
-    function test_permit_wrongSigner_reverts_skeleton() public {
+    function test_permit_wrongSigner_reverts() public {
         address owner = accountOwner;
         uint256 value = 1;
         uint256 nonce = tokenUnderTest.nonces(owner);
@@ -265,7 +265,7 @@ contract CE20_OPV2Test is Test {
 
     
     // 13) 事件断言（Transfer / Approval）
-    function test_events_transfer_and_approval_skeleton() public {
+    function test_events_transfer_and_approval() public {
         uint256 amount = 200;
         vm.prank(accountOwner);
         vm.expectEmit(true, true, false, true);
@@ -280,7 +280,7 @@ contract CE20_OPV2Test is Test {
 
     uint256[] public fixtureT14_transferAmount = [0, 1e18, type(uint256).max];
     // 14) Fuzz 测试
-    function test_fuzz_transfer_skeleton(uint256 T14_transferAmount) public {
+    function test_fuzz_transfer(uint256 T14_transferAmount) public {
         vm.assume(T14_transferAmount <= 1e18);
         vm.prank(accountOwner);
         tokenUnderTest.mint(accountAlice, T14_transferAmount);
@@ -290,7 +290,7 @@ contract CE20_OPV2Test is Test {
     }
 
     // 15) 差分测试（与 CE20V2 对比）
-    function test_diff_against_OZ_skeleton() public {
+    function test_diff_against_OZ() public {
         CE20_OPV2 op = new CE20_OPV2("CE20V2", "CE20V2", accountOwner);
         vm.prank(accountOwner);
         CE20V2 v2 = new CE20V2("CE20V2", "CE20V2");

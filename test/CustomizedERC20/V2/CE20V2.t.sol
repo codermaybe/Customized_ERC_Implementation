@@ -56,12 +56,8 @@ contract CE20V2Test is Test {
     }
 
     // 2) 铸造/转账/销毁
-    function test_mint_transfer_burn_skeleton() public {
-        // 步骤：
-        // - 以 accountOwner 身份给 accountAlice mint 若干代币
-        // - 以 accountAlice 身份向 accountBob 转账一部分
-        // - 以 accountAlice 身份 burn 一部分
-        // - 最终断言 accountAlice/accountBob 余额与 totalSupply 变化
+    function test_mint_transfer_burn() public {
+        // mint -> transfer -> burn，再断言余额与总量
         vm.prank(accountOwner);
         tokenUnderTest.mint(accountAlice, 10000);
 
@@ -76,11 +72,8 @@ contract CE20V2Test is Test {
     }
 
     // 3) 转账到零地址应 revert（ZeroAddress）
-    function test_transfer_zero_to_reverts_skeleton() public {
-        // 步骤：
-        // - accountOwner -> accountAlice mint
-        // - 预期 revert：vm.expectRevert(CE20V2.ZeroAddress.selector)
-        // - 以 accountAlice 身份执行 transfer(address(0), 1)
+    function test_transfer_zero_to_reverts() public {
+        // transfer 到零地址应当 revert（ZeroAddress）
 
         vm.prank(accountOwner);
         tokenUnderTest.mint(accountAlice, 10000);
@@ -90,12 +83,8 @@ contract CE20V2Test is Test {
     }
 
     // 4) 授权 + transferFrom 扣减额度
-    function test_approve_and_transferFrom_skeleton() public {
-        // 步骤：
-        // - accountOwner -> accountAlice mint
-        // - 以 accountAlice 身份 approve(accountSpender, N)
-        // - 以 accountSpender 身份 transferFrom(accountAlice, accountBob, x)
-        // - 断言 accountBob 余额与 allowance 扣减
+    function test_approve_and_transferFrom() public {
+        // approve + transferFrom 扣减额度
         vm.prank(accountOwner);
         tokenUnderTest.mint(accountAlice, 10000);
         vm.prank(accountAlice);
@@ -107,12 +96,8 @@ contract CE20V2Test is Test {
     }
 
     // 5) increase/decreaseAllowance
-    function test_increase_decrease_allowance_skeleton() public {
-        // 步骤：
-        // - 以 accountAlice 身份 approve(accountSpender, a)
-        // - increaseAllowance(accountSpender, b)
-        // - decreaseAllowance(accountSpender, c)
-        // - 断言 allowance(accountAlice, accountSpender) 为 a+b-c
+    function test_increase_decrease_allowance() public {
+        // increaseAllowance / decreaseAllowance 更新额度
         vm.startPrank(accountAlice);
         tokenUnderTest.approve(accountSpender, 3);
         tokenUnderTest.increaseAllowance(accountSpender, 2);
@@ -122,16 +107,8 @@ contract CE20V2Test is Test {
     }
 
     // 6) Permit (EIP-2612)
-    function test_permit_skeleton() public {
-        // 步骤：
-        // - 取 permitOwner = vm.addr(ownerPrivateKey)
-        // - 读取 nonce = tokenUnderTest.nonces(permitOwner)
-        // - 构造 structHash = keccak256(abi.encode(PERMIT_TYPEHASH, permitOwner, accountSpender, value, nonce, deadline))
-        // - 读取域：bytes32 domain = tokenUnderTest.DOMAIN_SEPARATOR()
-        // - 拼 digest = keccak256(abi.encodePacked("\x19\x01", domain, structHash))
-        // - 用 vm.sign(ownerPrivateKey, digest) 得到 v,r,s
-        // - 调用 tokenUnderTest.permit(permitOwner, accountSpender, value, deadline, v, r, s)
-        // - 断言 allowance(permitOwner, accountSpender) 与 nonces 增长
+    function test_permit_success() public {
+        // 正确签名应提升 allowance 且递增 nonce
         address permitOwner = vm.addr(ownerPrivateKey);
         uint256 nonce = tokenUnderTest.nonces(permitOwner);
         uint256 previousAllowance = tokenUnderTest.allowance(
@@ -170,20 +147,7 @@ contract CE20V2Test is Test {
     }
 
     // 7) 无限授权（uint256.max）：transferFrom 后 allowance 不应减少
-    function test_infiniteAllowance_transferFrom_doesNotDecrease_skeleton()
-        public
-    {
-        // 建议步骤：
-        // - 以 accountOwner 身份给 accountAlice mint（任意正数）
-        //   vm.prank(accountOwner);
-        //   tokenUnderTest.mint(accountAlice, 1000);
-        // - 以 accountAlice 身份授权 accountSpender 为 type(uint256).max
-        //   vm.prank(accountAlice);
-        //   tokenUnderTest.approve(accountSpender, type(uint256).max);
-        // - 以 accountSpender 身份执行 transferFrom(accountAlice, accountBob, 1)
-        //   vm.prank(accountSpender);
-        //   tokenUnderTest.transferFrom(accountAlice, accountBob, 1);
-        // - 断言：allowance(accountAlice, accountSpender) 仍为 type(uint256).max
+    function test_infiniteAllowance_transferFrom_doesNotDecrease() public {
         vm.prank(accountOwner);
         tokenUnderTest.mint(accountAlice, 1000);
         vm.prank(accountAlice);
@@ -197,8 +161,8 @@ contract CE20V2Test is Test {
     }
 
     // 8) decreaseAllowance 超额减少应当 revert（AllowanceExceeded）
-    function test_decreaseAllowance_revertsWhenExceeds_skeleton() public {
-        // 标准写法：预期完整的 revert data（含参数）
+    function test_decreaseAllowance_revertsWhenExceeds() public {
+        // 预期完整的 revert data（含参数）
         vm.startPrank(accountAlice);
         tokenUnderTest.approve(accountSpender, 1);
         uint256 beforeAllowance = tokenUnderTest.allowance(
@@ -226,22 +190,16 @@ contract CE20V2Test is Test {
     }
 
     // 9) onlyOwner：非所有者 mint 应当 revert（NotOwner）
-    function test_mint_onlyOwner_revertsForNonOwner_skeleton() public {
-        // 建议步骤：
-        // - 以 accountAlice 身份调用 mint；
-        // - 预期：vm.expectRevert(CE20V2.NotOwner.selector)
+    function test_mint_onlyOwner_revertsForNonOwner() public {
+        // 非 owner 调用 mint 应当 revert（NotOwner）
         vm.prank(accountAlice);
         vm.expectRevert(CE20V2.NotOwner.selector);
         tokenUnderTest.mint(accountAlice, 2);
     }
 
     // 10) burnFrom：应减少持有人余额、总量与授权额度
-    function test_burnFrom_decreasesSupplyAndAllowance_skeleton() public {
-        // 建议步骤：
-        // - owner -> alice mint（如 5）
-        // - alice approve(spender, 3)
-        // - spender 调用 burnFrom(alice, 2)
-        // - 断言：alice 余额为 3，总量为 3，allowance(alice, spender) 为 1
+    function test_burnFrom_decreasesSupplyAndAllowance() public {
+        // burnFrom：减少 alice 余额、总量与授权额度
         vm.prank(accountOwner);
         tokenUnderTest.mint(accountAlice, 5);
         vm.prank(accountAlice);
@@ -254,7 +212,7 @@ contract CE20V2Test is Test {
     }
 
     // 11) permit 过期应当 revert（PermitExpired）
-    function test_permit_expired_reverts_skeleton() public {
+    function test_permit_expired_reverts() public {
         // 过期检查先于签名验证，无需构造有效签名
         address owner = accountOwner;
         uint256 value = 1;
@@ -277,7 +235,7 @@ contract CE20V2Test is Test {
     }
 
     // 12) permit 使用错误签名者应当 revert（InvalidSignature）
-    function test_permit_wrongSigner_reverts_skeleton() public {
+    function test_permit_wrongSigner_reverts() public {
         // 正确 owner = accountOwner，但用错误私钥签名 → 应当 InvalidSignature
         address owner = accountOwner;
         uint256 value = 1;
@@ -309,18 +267,8 @@ contract CE20V2Test is Test {
     }
 
     // 13) 事件断言（Transfer / Approval）
-    function test_events_transfer_and_approval_skeleton() public {
-        // 目的：演示 vm.expectEmit 的基本用法；无需 forge-std 亦可使用。
-        // 建议步骤：
-        // - owner -> alice mint(amount)
-        // - 预期下一笔事件为 Transfer(0x0 -> alice, amount)：
-        //   vm.expectEmit(true, true, false, true);
-        //   emit Transfer(address(0), accountAlice, amount);
-        //   tokenUnderTest.mint(accountAlice, amount);
-        // - 预期下一笔事件为 Approval(owner, spender, value)：
-        //   vm.expectEmit(true, true, false, true);
-        //   emit Approval(accountAlice, accountSpender, value);
-        //   以 alice 身份调用 approve(spender, value)
+    function test_events_transfer_and_approval() public {
+        // 事件断言：Transfer 与 Approval
         uint256 amount = 200;
         vm.prank(accountOwner);
         vm.expectEmit(true, true, false, true);
@@ -330,15 +278,8 @@ contract CE20V2Test is Test {
 
     uint256[] public fixtureT14_transferAmount = [0, 1e18, type(uint256).max];
     // 14) Fuzz 测试
-    function test_fuzz_transfer_skeleton(uint256 T14_transferAmount) public {
-        // 目的：对 transfer 的不同金额做模糊测试（fuzz）。
-        // 建议步骤：
-        // - 约束 transferAmount 的范围（例如 0 <= amount <= 1e18）：
-        //   vm.assume(transferAmount <= 1e18);
-        // - owner -> alice mint(transferAmount)
-        // - 以 alice 身份 transfer(bob, transferAmount)
-        // - 断言：balanceOf(bob) == transferAmount
-        // 注意：如果想更严谨，可在引入 forge-std 后使用 bound(amount, min, max) 规约范围。
+    function test_fuzz_transfer(uint256 T14_transferAmount) public {
+        // fuzz 金额，断言收款方余额等于转账金额
         vm.prank(accountOwner);
         tokenUnderTest.mint(accountAlice, T14_transferAmount);
         vm.prank(accountAlice);
@@ -346,14 +287,5 @@ contract CE20V2Test is Test {
     }
 
     // 15) 差分测试（与 OpenZeppelin 版本对比）
-    function test_diff_against_OZ_skeleton() public {
-        // 目的：相同输入下，对比 CE20V2 与 CE20_OPV2 的行为一致性（余额/授权/事件）。
-        // 建议步骤：
-        // - 部署 CE20_OPV2（OZ 版本），使用相同的 name/symbol/owner
-        // - 随机选择若干组输入（mint/transfer/approve/transferFrom/increase/decrease）
-        // - 分别在两份合约上执行，并断言状态一致
-        // 提示：如需批量输入，可结合 fuzz 与快照/回滚（vm.snapshot/vm.revertTo）
-        
-
-    }
+    function test_diff_against_OZ() public {}
 }
