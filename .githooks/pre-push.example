@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "[pre-push] Generating per-contract gas reports…"
+# Optional: set GAS_INCLUDE to comma-separated aliases, e.g. "CE20V2,CE721V2"
+bash scripts/generate-gas-reports.sh
+
+echo "[pre-push] Gas reports generated."
