@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# set -e: exit on error; set -o pipefail: fail pipeline on any error
+set -e -o pipefail
+
+# Pre-commit: generate gas reports for impacted contracts so reports are part of the commit.
+# It discovers impacted aliases from staged changes (contracts and tests) and
+# calls scripts/generate-gas-reports.sh with GAS_INCLUDE.
+
+# Collect staged files
+mapfile -t CHANGED < <(git diff --cached --name-only --diff-filter=ACMR)
+
+# Accumulate aliases in a simple string to maximize shell compatibility
+ALIASES=""
+
+derive_alias_from_test() {
+  local f="$1"
+  local name
+  name=$(grep -nEh '^\s*contract\s+[A-Za-z0-9_]+' "$f" 2>/dev/null | grep -E '\bis\s+Test\b' | sed -E 's/^.*contract\s+([A-Za-z0-9_]+)\s+is\s+Test.*/\1/' | head -n1)
+  if [[ -n "$name" ]]; then
+    echo "$name" | sed -E 's/(_Tests|_Test|Tests|Test)$//'
+  fi
+}
+
+derive_alias_from_contract() {
+  local f="$1"
+  local cname
+  cname=$(grep -nE '^\s*contract\s+[A-Za-z0-9_]+' "$f" 2>/dev/null | sed -E 's/^.*contract\s+([A-Za-z0-9_]+).*/\1/' | head -n1)
+  if [[ -n "$cname" ]]; then
+    echo "$cname"
+  fi
+}
+
+for p in "${CHANGED[@]}"; do
+  # Tests: prefer parsing test contract name
+  if [[ "$p" == test/* && "$p" == *.t.sol ]]; then
+    alias=$(derive_alias_from_test "$p" || true)
+    if [[ -n "$alias" ]]; then ALIASES+=" $alias"; fi
+    continue
+  fi
+  # Contracts: parse primary contract name in file
+  if [[ "$p" == contracts/* && "$p" == *.sol ]]; then
+    alias=$(derive_alias_from_contract "$p" || true)
+    if [[ -n "$alias" ]]; then ALIASES+=" $alias"; fi
+    continue
+  fi
+done
+
+# Normalize and de-duplicate aliases
+ALIASES=$(echo "$ALIASES" | xargs -n1 2>/dev/null | sort -u | xargs 2>/dev/null || true)
+
+# If nothing detected, skip to keep commit fast
+if [[ -z "$ALIASES" ]]; then
+  exit 0
+fi
+
+# Build GAS_INCLUDE list
+INCLUDE=$(echo "$ALIASES" | sed -E 's/[[:space:]]+/,/g')
+export GAS_INCLUDE="$INCLUDE"
+
+echo "[pre-commit] Gas for aliases: $GAS_INCLUDE"
+
+# Generate and stage reports
+bash scripts/generate-gas-reports.sh
+git add docs/gas
