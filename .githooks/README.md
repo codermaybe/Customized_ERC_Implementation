@@ -14,6 +14,7 @@ Included templates
   - `GAS_INCLUDE` (comma-separated aliases, e.g., `CE20V2,CE721_OPV2`)
   - `GAS_ENV` (label in filenames, default `local`)
   - `GAS_KEEP` (history files to keep per alias, default `10`)
+  - `GAS_OUT_DIR` (base output directory, default `docs/gas`)
 
 Notes
 - On Windows, Git Bash can execute Bash hooks; alternatively, call PowerShell scripts from hooks.

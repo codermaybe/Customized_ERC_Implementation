@@ -4,12 +4,14 @@ set -euo pipefail
 # Per‑contract Forge gas reports without PowerShell.
 # - Auto-discovers test contracts: `contract <Name> is Test` under test/**/*.t.sol
 # - Alias = test name without suffix: _Tests/_Test/Tests/Test
-# - Outputs: dev/reports/gas/<ALIAS>/gas-<ALIAS>-<YYYYmmdd-HHMMSS>-<sha7>-<env>.md
-# - Maintains: dev/reports/gas/<ALIAS>/gas-<ALIAS>-latest.md
+# - Outputs: docs/gas/<ALIAS>/gas-<ALIAS>-<YYYYmmdd-HHMMSS>-<sha7>-<env>.md (override via GAS_OUT_DIR)
+# - Maintains: docs/gas/<ALIAS>/gas-<ALIAS>-latest.md
 # - Keeps history per alias: GAS_KEEP (default 10)
 
 GAS_ENV="${GAS_ENV:-local}"
 GAS_KEEP="${GAS_KEEP:-10}"
+# Base output directory (can override):
+OUT_DIR="${GAS_OUT_DIR:-docs/gas}"
 
 # Optional: comma-separated alias filter (e.g., CE20V2,CE721_OPV2)
 INCLUDE_RAW="${GAS_INCLUDE:-}"
@@ -86,7 +88,7 @@ for test_name in "${tests[@]}"; do
   if [[ -n "$INCLUDE_RAW" && -z "${INCLUDE[$alias]:-}" ]]; then
     continue
   fi
-  out_dir="dev/reports/gas/$alias"
+  out_dir="$OUT_DIR/$alias"
   mkdir -p "$out_dir"
   file="$out_dir/gas-$alias-$ts-$sha-$GAS_ENV.md"
   latest="$out_dir/gas-$alias-latest.md"
@@ -98,5 +100,4 @@ for test_name in "${tests[@]}"; do
   prune_history "$out_dir" "$alias" "$GAS_KEEP"
 done
 
-echo "[gas] Reports ready under dev/reports/gas/<ALIAS>/"
-
+echo "[gas] Reports ready under $OUT_DIR/<ALIAS>/"
