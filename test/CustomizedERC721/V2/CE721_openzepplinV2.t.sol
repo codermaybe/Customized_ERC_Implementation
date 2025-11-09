@@ -55,13 +55,12 @@ contract CE721_OPV2_Test is Test {
         vm.prank(alice);
         nft.mint(bob, 1);
         assertEq(nft.ownerOf(1), bob);
-        // cancel path: alice initiates then cancels
+        // only pending owner can accept
         vm.prank(alice);
         nft.transferOwnership(address(this));
-        vm.prank(alice);
-        nft.cancelOwnershipTransfer();
         vm.expectRevert();
-        nft.acceptOwnership(); // cancelled, no pending owner
+        vm.prank(alice);
+        nft.acceptOwnership(); // alice is not pending owner
     }
 
     function test_safeMint_and_tokenURI() public {
