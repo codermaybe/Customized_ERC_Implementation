@@ -2,13 +2,13 @@
 pragma solidity ^0.8.28;
 
 import {Test, console2} from "forge-std/Test.sol";
-import {CE20_OPV2} from "contracts/standards/erc20/src/v2/CE20_openzepplinV2.sol";
+import {CE20V2_OpenZeppelin} from "contracts/standards/erc20/src/v2/CE20V2_OpenZeppelin.sol";
 import {CE20V2} from "contracts/standards/erc20/src/v2/CE20V2.sol";
 import {IERC20Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-// 针对 OpenZeppelin 版本（CE20_OPV2）的测试
-contract CE20_OPV2Test is Test {
+// 针对 OpenZeppelin 版本（CE20V2_OpenZeppelin）的测试
+contract CE20V2_OpenZeppelinTest is Test {
     // 事件声明与被测合约一致
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(
@@ -30,11 +30,11 @@ contract CE20_OPV2Test is Test {
     address accountBob = address(0xCAFE);
     address accountSpender = address(0xD00D);
 
-    CE20_OPV2 tokenUnderTest;
+    CE20V2_OpenZeppelin tokenUnderTest;
 
     function setUp() public {
         // 部署时直接指定 owner，无需 prank
-        tokenUnderTest = new CE20_OPV2("CE20V2", "CE20V2", accountOwner);
+        tokenUnderTest = new CE20V2_OpenZeppelin("CE20V2", "CE20V2", accountOwner);
     }
 
     // 1) 元数据：名称 / 符号 / 精度 / 初始总量
@@ -219,7 +219,7 @@ contract CE20_OPV2Test is Test {
         uint256 deadline = block.timestamp - 1;
 
         vm.expectRevert(
-            abi.encodeWithSelector(CE20_OPV2.PermitExpired.selector, deadline)
+            abi.encodeWithSelector(CE20V2_OpenZeppelin.PermitExpired.selector, deadline)
         );
         tokenUnderTest.permit(
             owner,
@@ -258,7 +258,7 @@ contract CE20_OPV2Test is Test {
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(wrongPrivateKey, digest);
 
         vm.expectRevert(
-            abi.encodeWithSelector(CE20_OPV2.InvalidSignature.selector)
+            abi.encodeWithSelector(CE20V2_OpenZeppelin.InvalidSignature.selector)
         );
         tokenUnderTest.permit(owner, accountSpender, value, deadline, v, r, s);
     }
@@ -291,7 +291,7 @@ contract CE20_OPV2Test is Test {
 
     // 15) 差分测试（与 CE20V2 对比）
     function test_diff_against_OZ() public {
-        CE20_OPV2 op = new CE20_OPV2("CE20V2", "CE20V2", accountOwner);
+        CE20V2_OpenZeppelin op = new CE20V2_OpenZeppelin("CE20V2", "CE20V2", accountOwner);
         vm.prank(accountOwner);
         CE20V2 v2 = new CE20V2("CE20V2", "CE20V2");
 

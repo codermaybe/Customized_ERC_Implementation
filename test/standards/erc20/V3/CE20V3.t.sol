@@ -8,7 +8,7 @@ import {
 } from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 import {CE20V3} from "contracts/standards/erc20/src/v3/CE20V3.sol";
-import {CE20_OPV3} from "contracts/standards/erc20/src/v3/CE20_openzepplinV3.sol";
+import {CE20V3_OpenZeppelin} from "contracts/standards/erc20/src/v3/CE20V3_OpenZeppelin.sol";
 
 contract CE20V3UpgradeMock is CE20V3 {
     function upgradeMarker() external pure returns (uint256) {
@@ -21,7 +21,7 @@ contract CE20V3Test is Test {
 
     CE20V3 internal token;
     CE20V3 internal implementation;
-    CE20_OPV3 internal referenceToken;
+    CE20V3_OpenZeppelin internal referenceToken;
 
     address internal owner = address(0xA11CE);
     address internal alice = address(0xBEEF);
@@ -43,16 +43,16 @@ contract CE20V3Test is Test {
         );
         token = CE20V3(address(proxy));
 
-        CE20_OPV3 referenceImplementation = new CE20_OPV3();
+        CE20V3_OpenZeppelin referenceImplementation = new CE20V3_OpenZeppelin();
         TransparentUpgradeableProxy referenceProxy = new TransparentUpgradeableProxy(
                 address(referenceImplementation),
                 owner,
                 abi.encodeCall(
-                    CE20_OPV3.initialize,
-                    ("CE20_OPV3", "CE20_OPV3", owner)
+                    CE20V3_OpenZeppelin.initialize,
+                    ("CE20V3_OpenZeppelin", "CE20V3_OpenZeppelin", owner)
                 )
             );
-        referenceToken = CE20_OPV3(address(referenceProxy));
+        referenceToken = CE20V3_OpenZeppelin(address(referenceProxy));
 
         vm.stopPrank();
     }

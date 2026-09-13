@@ -16,7 +16,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
  *
  * @notice 本合约仅作为对照实现，便于与自实现版本 CE1155V1.sol 对比。
  */
-contract CE1155_OPV1 is ERC1155, ERC1155Burnable, Ownable {
+contract CE1155V1_OpenZeppelin is ERC1155, ERC1155Burnable, Ownable {
     /// @dev ERC1155 标准本身没有 name/symbol，这里做简单扩展方便前端展示
     string public name;
     string public symbol;

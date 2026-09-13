@@ -9,9 +9,9 @@
 ## 目录结构
 - `contracts/standards/erc20/src`
   - `v1/CE20V1.sol` 自研 ERC20（教学版）
-  - `v1/CE20_openzepplinV1.sol` 基于 OZ 的 ERC20（V1）
+  - `v1/CE20V1_OpenZeppelin.sol` 基于 OZ 的 ERC20（V1）
   - `v2/CE20V2.sol` 自研 ERC20 + Permit（EIP‑2612 版本号为 "2"）
-  - `v2/CE20_openzepplinV2.sol` 基于 OZ ERC20 + 自实现 Permit("2")，接口与 CE20V2 对齐
+  - `v2/CE20V2_OpenZeppelin.sol` 基于 OZ ERC20 + 自实现 Permit("2")，接口与 CE20V2 对齐
 - `contracts/standards/erc721/src`：最小 ERC721 与 OZ 版
 - `contracts/standards/erc1155/src`：最小 ERC1155 与 OZ 版接口
 - `test/standards/erc20/V1`：Hardhat JS 测试（V1）
@@ -22,7 +22,7 @@
   - ERC20 基础能力 + 仅 owner 可 mint + burn/burnFrom
   - 自定义错误（ZeroAddress/InsufficientBalance/…）
   - EIP‑2612 Permit：显式 `permit`、`nonces`、`DOMAIN_SEPARATOR`，EIP‑712 版本为 "2"
-- CE20_OPV2（OZ 版）
+- CE20V2_OpenZeppelin（OZ 版）
   - 继承 `ERC20` + `Ownable`，保留 OZ 的错误类型（IERC20Errors）与事件语义
   - 自实现 Permit（不修改 OZ 源码），同样暴露 `permit/nonces/DOMAIN_SEPARATOR`，EIP‑712 版本为 "2"
 
@@ -42,8 +42,8 @@ npm i
 
 ### Foundry（推荐用于 V2）
 - 全量：`forge test -vv`
-- 仅跑某文件：`forge test --match-path test/standards/erc20/V2/CE20_openzepplinV2.t.sol`
-- 仅跑某合约：`forge test --match-contract CE20_OPV2Test`
+- 仅跑某文件：`forge test --match-path test/standards/erc20/V2/CE20V2_OpenZeppelin.t.sol`
+- 仅跑某合约：`forge test --match-contract CE20V2_OpenZeppelinTest`
 - 仅跑某用例：`forge test --match-test permit_skeleton`
 
 ### Hardhat（用于 V1）

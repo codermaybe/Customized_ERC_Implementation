@@ -5,7 +5,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
- * @title CE20_OPV2 (OZ ERC20 + 自实现 Permit)
+ * @title CE20V2_OpenZeppelin (OZ ERC20 + 自实现 Permit)
  * @notice 基于 OpenZeppelin 的 ERC20 + Ownable，内置自实现的 EIP-2612 permit（版本号为 "2"，与 CE20V2 对齐）。
  * @dev 特性：
  *      - decimals = 18（继承 ERC20 默认）；
@@ -13,7 +13,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
  *      - burn/burnFrom；
  *      - 自实现 EIP-2612 permit（不改动 OZ 源码），对外提供 nonces/DOMAIN_SEPARATOR/permit。
  */
-contract CE20_OPV2 is ERC20, Ownable {
+contract CE20V2_OpenZeppelin is ERC20, Ownable {
     // ---- EIP-2612: 自实现（版本号为 "2"） ----
     string internal _version = "2";
     mapping(address => uint256) internal _nonces;

@@ -9,13 +9,13 @@ import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
  * @title CustomizedERC20
  * @author github.com/codermaybe
  * @dev CustomizedERC20 is a customized ERC20 token with a few additional features.
- * @dev 本合约仅用于学习和研究。ERC721标准的实现依赖openzepplin库。详见：https://github.com/ethereum/ERCs/blob/master/ERCS/erc-721.md
+ * @dev 本合约仅用于学习和研究。ERC721标准的实现依赖OpenZeppelin库。详见：https://github.com/ethereum/ERCs/blob/master/ERCS/erc-721.md
  * @dev V1版本特性：
  * @dev 1. 继承了ERC721URIStorage和ERC721Burnable，支持URI和Burn功能。
  * @dev 2. 继承了Ownable，支持owner的管理。
  * @dev 3. 重写了tokenURI和supportsInterface函数，支持ERC721标准的查询。
  */
-contract CE721_openzepplinV1 is
+contract CE721V1_OpenZeppelin is
     ERC721,
     ERC721URIStorage,
     ERC721Burnable,

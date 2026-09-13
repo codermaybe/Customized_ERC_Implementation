@@ -4,10 +4,10 @@ pragma solidity ^0.8.28;
 import {Test} from "forge-std/Test.sol";
 import {IERC20Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
-import {CE20_OPV1} from "contracts/standards/erc20/src/v1/CE20_openzepplinV1.sol";
+import {CE20V1_OpenZeppelin} from "contracts/standards/erc20/src/v1/CE20V1_OpenZeppelin.sol";
 
-contract CE20_OPV1Test is Test {
-    CE20_OPV1 token;
+contract CE20V1_OpenZeppelinTest is Test {
+    CE20V1_OpenZeppelin token;
     address owner = address(this);
     address addr1 = address(0xA11CE);
     address addr2 = address(0xB0B);
@@ -17,7 +17,7 @@ contract CE20_OPV1Test is Test {
     event Burn(address _from, uint256 _value);
 
     function setUp() public {
-        token = new CE20_OPV1(1_000 ether);
+        token = new CE20V1_OpenZeppelin(1_000 ether);
     }
 
     // Deployment
@@ -26,8 +26,8 @@ contract CE20_OPV1Test is Test {
     }
 
     function test_metadata_name_symbol() public {
-        assertEq(token.name(), "CE20_OPV1");
-        assertEq(token.symbol(), "CE20_OPV1");
+        assertEq(token.name(), "CE20V1_OpenZeppelin");
+        assertEq(token.symbol(), "CE20V1_OpenZeppelin");
     }
 
     function test_owner_is_deployer() public {

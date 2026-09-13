@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
 /**
- * @title CustomizedERC20_Openzepplin
+ * @title CustomizedERC20_OpenZeppelin
  * @author github.com/codermaybe
- * @dev CustomizedERC20_Openzepplin is a customized ERC20 token with a few additional features.
- * @dev 使用openzepplin的erc20合约，自行添加Burn,mint方法,暂时仅由拥有者操控
+ * @dev CustomizedERC20_OpenZeppelin is a customized ERC20 token with a few additional features.
+ * @dev 使用OpenZeppelin的erc20合约，自行添加Burn,mint方法,暂时仅由拥有者操控
  */
 pragma solidity ^0.8.28;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
-contract CE20_OPV1 is ERC20, Ownable {
+contract CE20V1_OpenZeppelin is ERC20, Ownable {
     constructor(
         uint256 initialSupply
-    ) ERC20("CE20_OPV1", "CE20_OPV1") Ownable(msg.sender) {
+    ) ERC20("CE20V1_OpenZeppelin", "CE20V1_OpenZeppelin") Ownable(msg.sender) {
         _mint(msg.sender, initialSupply);
     }
 

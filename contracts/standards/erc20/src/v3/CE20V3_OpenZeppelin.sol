@@ -7,10 +7,10 @@ import {ERC20Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/
 import {ERC20PermitUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC20/extensions/ERC20PermitUpgradeable.sol";
 
 /**
- * @title CE20_OPV3
+ * @title CE20V3_OpenZeppelin
  * @notice OpenZeppelin 参考实现：可升级 ERC20、Permit、两步所有权及 mint/burn。
  */
-contract CE20_OPV3 is
+contract CE20V3_OpenZeppelin is
     Initializable,
     ERC20Upgradeable,
     ERC20PermitUpgradeable,

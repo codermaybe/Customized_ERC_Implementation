@@ -6,7 +6,7 @@
  * @dev 本合约仅用于学习和研究。所有复现均按照eip1155标准。详见：https://github.com/ethereum/ERCs/blob/master/ERCS/erc-1155.md
  * @dev 自行复现的erc1155各项功能。interface文件夹中的所有文件为官方文档移植
  * @dev 逐行按照官方文档翻译方法的实现需求，请允许我偷点小懒用翻译 *。*
- * @dev ERC1155标准相对复杂许多，生产建议直接使用openzepplin。
+ * @dev ERC1155标准相对复杂许多，生产建议直接使用OpenZeppelin。
  * @dev V1版本特性：data字段暂不具有任何特性，仅作为预留。
  */
 

@@ -13,7 +13,7 @@ GAS_KEEP="${GAS_KEEP:-10}"
 # Base output directory (can override):
 OUT_DIR="${GAS_OUT_DIR:-docs/gas}"
 
-# Optional: comma-separated alias filter (e.g., CE20V2,CE721_OPV2)
+# Optional: comma-separated alias filter (e.g., CE20V2,CE721V2_OpenZeppelin)
 INCLUDE_RAW="${GAS_INCLUDE:-}"
 
 sha=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")

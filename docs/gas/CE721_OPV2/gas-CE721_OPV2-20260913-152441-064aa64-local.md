@@ -1,4 +1,4 @@
-# Gas Report - CE721_OPV2
+# Gas Report - CE721V2_OpenZeppelin
 
 - Generated: 2026-09-13 15:24:45 +0800
 - Branch: main
@@ -15,7 +15,7 @@ Build Profile: dist
 
 No files changed, compilation skipped
 
-Ran 11 tests for test/standards/erc721/V2/CE721_openzepplinV2.t.sol:CE721_OPV2_Test
+Ran 11 tests for test/standards/erc721/V2/CE721V2_OpenZeppelin.t.sol:CE721V2_OpenZeppelin_Test
 [PASS] test_approve_and_transferFrom() (gas: 193774)
 [PASS] test_balanceOf_zero_address_reverts() (gas: 8916)
 [PASS] test_burn() (gas: 107008)
@@ -30,7 +30,7 @@ Ran 11 tests for test/standards/erc721/V2/CE721_openzepplinV2.t.sol:CE721_OPV2_T
 Suite result: ok. 11 passed; 0 failed; 0 skipped; finished in 1.13ms (1.97ms CPU time)
 
 ╭-------------------------------------------------------------------------------+-----------------+-------+--------+-------+---------╮
-| contracts/standards/erc721/src/v2/CE721_openzepplinV2.sol:CE721_OPV2 Contract |                 |       |        |       |         |
+| contracts/standards/erc721/src/v2/CE721V2_OpenZeppelin.sol:CE721V2_OpenZeppelin Contract |                 |       |        |       |         |
 +====================================================================================================================================+
 | Deployment Cost                                                               | Deployment Size |       |        |       |         |
 |-------------------------------------------------------------------------------+-----------------+-------+--------+-------+---------|

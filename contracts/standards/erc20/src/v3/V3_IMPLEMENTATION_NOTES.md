@@ -1,6 +1,6 @@
 # CE20 V3 implementation notes
 
-`CE20V3.sol` is the custom upgradeable baseline. `CE20_openzepplinV3.sol` is
+`CE20V3.sol` is the custom upgradeable baseline. `CE20V3_OpenZeppelin.sol` is
 the OpenZeppelin reference implementation. Their public behavior is aligned
 where the project expects differential testing:
 

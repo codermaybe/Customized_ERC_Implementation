@@ -5,7 +5,7 @@ OpenZeppelin tracks.
 
 Completed:
 
-- naming continues V1/V2: `CE20V3` and `CE20_OPV3`
+- naming continues V1/V2: `CE20V3` and `CE20V3_OpenZeppelin`
 - both implementations use transparent proxies and locked implementations
 - custom ERC20 core, mint/burn, allowance extensions, and two-step ownership
 - hardened custom EIP-2612 Permit

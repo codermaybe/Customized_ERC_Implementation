@@ -3,7 +3,7 @@ pragma solidity ^0.8.28;
 
 import {Test, console2} from "forge-std/Test.sol";
 import {CE20V2} from "contracts/standards/erc20/src/v2/CE20V2.sol";
-import {CE20_OPV2} from "contracts/standards/erc20/src/v2/CE20_openzepplinV2.sol";
+import {CE20V2_OpenZeppelin} from "contracts/standards/erc20/src/v2/CE20V2_OpenZeppelin.sol";
 
 // V2 测试：覆盖元数据、转账、授权、permit、事件、fuzz 与差分
 contract CE20V2Test is Test {
@@ -308,7 +308,7 @@ contract CE20V2Test is Test {
 
     // 15) 差分测试（与 OpenZeppelin 版本对比）
     function test_diff_against_OZ() public {
-        CE20_OPV2 op = new CE20_OPV2("CE20V2", "CE20V2", accountOwner);
+        CE20V2_OpenZeppelin op = new CE20V2_OpenZeppelin("CE20V2", "CE20V2", accountOwner);
         vm.prank(accountOwner);
         CE20V2 v2 = new CE20V2("CE20V2", "CE20V2");
 

@@ -129,7 +129,7 @@ contract CE20V1 {
     NOTE: To prevent attack vectors like the one described here and discussed here, clients SHOULD make sure to create user interfaces in such a way that they set the allowance first to 0 before setting it to another value for the same spender. 
     THOUGH The contract itself shouldn't enforce it, to allow backwards compatibility with contracts deployed before */
     function approve(
-        //此版本未解决重入攻击,安全版本可检查CE20V1_openzepplin.sol
+        //此版本未解决重入攻击,安全版本可检查CE20V1_OpenZeppelin.sol
         address _spender,
         uint256 _value
     ) public returns (bool success) {

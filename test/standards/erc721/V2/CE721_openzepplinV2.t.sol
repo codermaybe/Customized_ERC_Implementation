@@ -3,7 +3,7 @@ pragma solidity ^0.8.28;
 
 import {Test} from "forge-std/Test.sol";
 import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.sol";
-import {CE721_OPV2} from "contracts/standards/erc721/src/v2/CE721_openzepplinV2.sol";
+import {CE721V2_OpenZeppelin} from "contracts/standards/erc721/src/v2/CE721V2_OpenZeppelin.sol";
 
 contract MockReceiver {
     function onERC721Received(
@@ -18,13 +18,13 @@ contract MockReceiver {
 
 contract Dummy {}
 
-contract CE721_OPV2_Test is Test {
-    CE721_OPV2 nft;
+contract CE721V2_OpenZeppelin_Test is Test {
+    CE721V2_OpenZeppelin nft;
     address alice = address(0xA11CE);
     address bob = address(0xB0B);
 
     function setUp() public {
-        nft = new CE721_OPV2("OpenZ721", "OZ721", address(this));
+        nft = new CE721V2_OpenZeppelin("OpenZ721", "OZ721", address(this));
     }
 
     function test_supportsInterface() public {

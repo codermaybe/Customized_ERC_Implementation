@@ -4,12 +4,12 @@ pragma solidity ^0.8.28;
 import {Test} from "forge-std/Test.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {CE721V3} from "contracts/standards/erc721/src/v3/CE721V3.sol";
-import {CE721_OPV3} from "contracts/standards/erc721/src/v3/CE721_openzepplinV3.sol";
+import {CE721V3_OpenZeppelin} from "contracts/standards/erc721/src/v3/CE721V3_OpenZeppelin.sol";
 
 contract CE721V3Test is Test {
     CE721V3 internal token;
     CE721V3 internal implementation;
-    CE721_OPV3 internal referenceToken;
+    CE721V3_OpenZeppelin internal referenceToken;
 
     address internal owner = address(0xA11CE);
     address internal alice = address(0xBEEF);
@@ -30,16 +30,16 @@ contract CE721V3Test is Test {
         );
         token = CE721V3(address(proxy));
 
-        CE721_OPV3 referenceImplementation = new CE721_OPV3();
+        CE721V3_OpenZeppelin referenceImplementation = new CE721V3_OpenZeppelin();
         TransparentUpgradeableProxy referenceProxy = new TransparentUpgradeableProxy(
                 address(referenceImplementation),
                 owner,
                 abi.encodeCall(
-                    CE721_OPV3.initialize,
-                    ("CE721_OPV3", "CE721_OPV3", owner)
+                    CE721V3_OpenZeppelin.initialize,
+                    ("CE721V3_OpenZeppelin", "CE721V3_OpenZeppelin", owner)
                 )
             );
-        referenceToken = CE721_OPV3(address(referenceProxy));
+        referenceToken = CE721V3_OpenZeppelin(address(referenceProxy));
 
         vm.stopPrank();
     }

@@ -8,10 +8,10 @@ import {ERC721URIStorageUpgradeable} from "@openzeppelin/contracts-upgradeable/t
 import {ERC721BurnableUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 
 /**
- * @title CE721_OPV3
+ * @title CE721V3_OpenZeppelin
  * @notice OpenZeppelin 参考实现：可升级 ERC721、URIStorage、Burnable 与两步所有权。
  */
-contract CE721_OPV3 is
+contract CE721V3_OpenZeppelin is
     Initializable,
     ERC721Upgradeable,
     ERC721URIStorageUpgradeable,

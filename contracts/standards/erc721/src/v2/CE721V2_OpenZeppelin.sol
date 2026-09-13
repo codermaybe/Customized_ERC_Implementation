@@ -8,11 +8,11 @@ import {Ownable2Step} from "@openzeppelin/contracts/access/Ownable2Step.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
- * @title CE721_OPV2 (OpenZeppelin ERC721 版本)
+ * @title CE721V2_OpenZeppelin (OpenZeppelin ERC721 版本)
  * @dev 继承 OZ 的 ERC721URIStorage / ERC721Burnable / Ownable2Step。
  *      提供 owner 铸造、按 tokenId 设置 URI、以及两步转移所有权（OZ Ownable2Step 语义）。
  */
-contract CE721_OPV2 is ERC721, ERC721URIStorage, ERC721Burnable, Ownable2Step {
+contract CE721V2_OpenZeppelin is ERC721, ERC721URIStorage, ERC721Burnable, Ownable2Step {
     // 自增 tokenId（可选）
     uint256 private _nextToken;
 
