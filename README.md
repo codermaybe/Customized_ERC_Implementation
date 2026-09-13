@@ -7,15 +7,15 @@
 本仓库的目标是对比“自实现与基于 OpenZeppelin”的差异，在接口一致性、错误类型、Permit（EIP‑2612）等方面给出清晰示例。
 
 ## 目录结构
-- `contracts/CustomizedERC20`
+- `contracts/standards/erc20/src`
   - `v1/CE20V1.sol` 自研 ERC20（教学版）
   - `v1/CE20_openzepplinV1.sol` 基于 OZ 的 ERC20（V1）
   - `v2/CE20V2.sol` 自研 ERC20 + Permit（EIP‑2612 版本号为 "2"）
   - `v2/CE20_openzepplinV2.sol` 基于 OZ ERC20 + 自实现 Permit("2")，接口与 CE20V2 对齐
-- `contracts/CustomizedERC721`：最小 ERC721 与 OZ 版
-- `contracts/CustomizedERC1155`：最小 ERC1155 与 OZ 版接口
-- `test/CustomizedERC20/V1`：Hardhat JS 测试（V1）
-- `test/CustomizedERC20/V2`：Foundry 测试（V2，自研与 OZ 版）
+- `contracts/standards/erc721/src`：最小 ERC721 与 OZ 版
+- `contracts/standards/erc1155/src`：最小 ERC1155 与 OZ 版接口
+- `test/standards/erc20/V1`：Hardhat JS 测试（V1）
+- `test/standards/erc20/V2`：Foundry 测试（V2，自研与 OZ 版）
 
 ## 亮点与差异
 - CE20V2（自研）
@@ -42,13 +42,13 @@ npm i
 
 ### Foundry（推荐用于 V2）
 - 全量：`forge test -vv`
-- 仅跑某文件：`forge test --match-path test/CustomizedERC20/V2/CE20_openzepplinV2.t.sol`
+- 仅跑某文件：`forge test --match-path test/standards/erc20/V2/CE20_openzepplinV2.t.sol`
 - 仅跑某合约：`forge test --match-contract CE20_OPV2Test`
 - 仅跑某用例：`forge test --match-test permit_skeleton`
 
 ### Hardhat（用于 V1）
 - 全量：`npx hardhat test`
-- 指定文件：`npx hardhat test ./test/CustomizedERC20/V1/CE20V1.js`
+- 指定文件：`npx hardhat test ./test/standards/erc20/V1/CE20V1.js`
 - 名称匹配：`npx hardhat test --grep "Your_test_name"`
 
 ## 部署（Hardhat Ignition）
@@ -56,7 +56,7 @@ npm i
 
 示例：
 ```
-npx hardhat ignition deploy ./ignition/modules/CustomizedERC20/V1/CE20V1.js --network <your_network>
+npx hardhat ignition deploy ./ignition/modules/standards/erc20/V1/CE20V1.js --network <your_network>
 ```
 
 ## Permit（EIP‑2612）说明（V2）

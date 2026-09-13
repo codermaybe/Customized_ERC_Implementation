@@ -6,5 +6,5 @@ ignition/
 test/
 
 # Optionally ignore large or WIP contracts
-# contracts/CustomizedERC721/**
-# contracts/CustomizedERC1155/**
+# contracts/standards/erc721/src/**
+# contracts/standards/erc1155/src/**
