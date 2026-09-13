@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import {ERC1155} from "../interface/ERC1155.sol";
-import {ERC1155TokenReceiver} from "../interface/ERC1155TokenReceiver.sol";
+import {ERC1155} from "contracts/interfaces/erc1155/ERC1155.sol";
+import {ERC1155TokenReceiver} from "contracts/interfaces/erc1155/ERC1155TokenReceiver.sol";
 
 /**
  * @title CE1155V2 (Customized ERC1155)

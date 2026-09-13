@@ -12,8 +12,8 @@
 
 pragma solidity ^0.8.28;
 
-import {ERC1155} from "../interface/ERC1155.sol";
-import {ERC1155TokenReceiver} from "../interface/ERC1155TokenReceiver.sol";
+import {ERC1155} from "contracts/interfaces/erc1155/ERC1155.sol";
+import {ERC1155TokenReceiver} from "contracts/interfaces/erc1155/ERC1155TokenReceiver.sol";
 
 contract CE1155V1 is ERC1155 {
     //----------------------------------------个人实现部分起始--------------------------------------------------------

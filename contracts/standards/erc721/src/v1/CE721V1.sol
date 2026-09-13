@@ -9,8 +9,8 @@
  * @dev 逐行按照官方文档翻译方法的实现需求，请允许我偷点小懒用翻译 *。*
  * @dev V1版本特性：自定义_baseURI，_nextToken，以及mint、burn等方法，丰富构造器和管理功能
  */
-import {ERC721} from "../interface/ERC721.sol";
-import {ERC721TokenReceiver} from "../interface/ERC721TokenReceiver.sol";
+import {ERC721} from "contracts/interfaces/erc721/ERC721.sol";
+import {ERC721TokenReceiver} from "contracts/interfaces/erc721/ERC721TokenReceiver.sol";
 
 pragma solidity ^0.8.28;
 

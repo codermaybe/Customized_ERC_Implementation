@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import {ERC721, ERC165} from "../interface/ERC721.sol";
-import {ERC721Metadata} from "../interface/ERC721Metadata.sol";
-import {ERC721TokenReceiver} from "../interface/ERC721TokenReceiver.sol";
+import {ERC721, ERC165} from "contracts/interfaces/erc721/ERC721.sol";
+import {ERC721Metadata} from "contracts/interfaces/erc721/ERC721Metadata.sol";
+import {ERC721TokenReceiver} from "contracts/interfaces/erc721/ERC721TokenReceiver.sol";
 
 /**
  * @title CE721V3

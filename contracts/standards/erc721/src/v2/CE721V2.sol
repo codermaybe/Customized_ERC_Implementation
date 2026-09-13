@@ -5,10 +5,10 @@ pragma solidity ^0.8.28;
  * @title CE721V2 (Customized ERC721)
  * @dev 外部薄壳路由；内部统一校验与状态更新（CEI）。
  */
-import {ERC721} from "../interface/ERC721.sol";
-import {ERC165} from "../interface/ERC721.sol";
-import {ERC721Metadata} from "../interface/ERC721Metadata.sol";
-import {ERC721TokenReceiver} from "../interface/ERC721TokenReceiver.sol";
+import {ERC721} from "contracts/interfaces/erc721/ERC721.sol";
+import {ERC165} from "contracts/interfaces/erc721/ERC721.sol";
+import {ERC721Metadata} from "contracts/interfaces/erc721/ERC721Metadata.sol";
+import {ERC721TokenReceiver} from "contracts/interfaces/erc721/ERC721TokenReceiver.sol";
 
 contract CE721V2 is ERC721, ERC721Metadata, ERC165 {
     error NotOwner();

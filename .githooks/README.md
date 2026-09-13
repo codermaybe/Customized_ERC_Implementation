@@ -10,7 +10,8 @@ This repo uses a dedicated hooks directory. To enable hooks locally:
 
 Included templates
 - pre-commit: active hook that generates per-contract gas reports for staged changes and stages them into the commit.
-  Optional envs:
+  Gas generation is opt-in: set `GAS_ON_COMMIT=1` for a commit that intentionally updates gas reports.
+Optional envs:
   - `GAS_INCLUDE` (comma-separated aliases, e.g., `CE20V2,CE721_OPV2`)
   - `GAS_ENV` (label in filenames, default `local`)
   - `GAS_KEEP` (history files to keep per alias, default `10`)

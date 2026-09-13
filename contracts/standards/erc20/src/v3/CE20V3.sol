@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import {ERC20} from "../interface/ERC20.sol";
-import {ERC20Metadata} from "../interface/ERC20Metadata.sol";
+import {ERC20} from "contracts/interfaces/erc20/ERC20.sol";
+import {ERC20Metadata} from "contracts/interfaces/erc20/ERC20Metadata.sol";
 import {
     CE20AllowanceExtensions,
     CE20MintBurn,
     CE20Permit
-} from "../interface/CE20Extensions.sol";
+} from "contracts/standards/erc20/src/interfaces/CE20Extensions.sol";
 
 /**
  * @title CE20V3
