@@ -3,7 +3,7 @@ pragma solidity ^0.8.28;
 
 /// @title ERC-20 Token Standard
 /// @dev See https://eips.ethereum.org/EIPS/eip-20
-interface ERC20 {
+interface IERC20 {
     /// @dev MUST trigger when tokens are transferred, including zero value transfers.
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
 

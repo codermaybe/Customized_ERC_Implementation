@@ -2,7 +2,7 @@
 /**
  * @title CustomizedERC1155
  * @author github.com/codermaybe
- * @dev CustomizedERC1155 is a customized ERC1155 implementation with a few additional features.
+ * @dev CustomizedERC1155 is a customized IERC1155 implementation with a few additional features.
  * @dev 本合约仅用于学习和研究。所有复现均按照eip1155标准。详见：https://github.com/ethereum/ERCs/blob/master/ERCS/erc-1155.md
  * @dev 自行复现的erc1155各项功能。interface文件夹中的所有文件为官方文档移植
  * @dev 逐行按照官方文档翻译方法的实现需求，请允许我偷点小懒用翻译 *。*
@@ -12,10 +12,10 @@
 
 pragma solidity ^0.8.28;
 
-import {ERC1155} from "contracts/interfaces/erc1155/ERC1155.sol";
-import {ERC1155TokenReceiver} from "contracts/interfaces/erc1155/ERC1155TokenReceiver.sol";
+import {IERC1155} from "contracts/interfaces/erc1155/IERC1155.sol";
+import {IERC1155TokenReceiver} from "contracts/interfaces/erc1155/IERC1155TokenReceiver.sol";
 
-contract CE1155V1 is ERC1155 {
+contract CE1155V1 is IERC1155 {
     //----------------------------------------个人实现部分起始--------------------------------------------------------
 
     ///@dev 此处起始直到safeTransferFrom函数起始，均为个人设计实现。
@@ -231,7 +231,7 @@ contract CE1155V1 is ERC1155 {
         //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!需修改部分！！！！！！！！！！！！！！！！
         if (_to.code.length > 0) {
             //onERC1155Received 或 onERC1155BatchReceived 必须在接收转账的合约上至少被调用一个
-            bytes4 retval1 = ERC1155TokenReceiver(_to).onERC1155Received(
+            bytes4 retval1 = IERC1155TokenReceiver(_to).onERC1155Received(
                 msg.sender,
                 _from,
                 _id,
@@ -250,7 +250,7 @@ contract CE1155V1 is ERC1155 {
             //需补充部分，此处应为批量转账的判断，由于此合约中没有批量转账的函数，所以此处不做判断。
             //如果需要批量转账，需要在接收者合约上实现 onERC1155BatchReceived 函数，并在 safeBatchTransferFrom 函数中调用。
             /*
-        bytes4 retval2 =  ERC1155TokenReceiver(_to).onERC1155BatchReceived(msg.sender,_from,_id,_value,_data);//可选  这个函数可能没有被调用，但是必须得遵循规则
+        bytes4 retval2 =  IERC1155TokenReceiver(_to).onERC1155BatchReceived(msg.sender,_from,_id,_value,_data);//可选  这个函数可能没有被调用，但是必须得遵循规则
         require(
             retval2 ==
                 bytes4(
@@ -337,7 +337,7 @@ contract CE1155V1 is ERC1155 {
 
         if (_to.code.length > 0) {
             //onERC1155Received 或 onERC1155BatchReceived 必须在接收转账的合约上至少被调用一个
-            //bytes4 retval1 =  ERC1155TokenReceiver(_to).onERC1155Received(msg.sender,_from,_ids[0],_values[0],_data);//onERC1155Received必须被调用，且必须得遵循规则
+            //bytes4 retval1 =  IERC1155TokenReceiver(_to).onERC1155Received(msg.sender,_from,_ids[0],_values[0],_data);//onERC1155Received必须被调用，且必须得遵循规则
             /*require(
             retval1 ==
                 bytes4(
@@ -348,7 +348,7 @@ contract CE1155V1 is ERC1155 {
             unicode"此合约地址未实现ERC1155TokenReceiver"
         );
         */
-            bytes4 retval2 = ERC1155TokenReceiver(_to).onERC1155BatchReceived(
+            bytes4 retval2 = IERC1155TokenReceiver(_to).onERC1155BatchReceived(
                 msg.sender,
                 _from,
                 _ids,

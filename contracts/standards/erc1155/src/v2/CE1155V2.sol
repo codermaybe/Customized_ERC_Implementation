@@ -1,20 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import {ERC1155} from "contracts/interfaces/erc1155/ERC1155.sol";
-import {ERC1155TokenReceiver} from "contracts/interfaces/erc1155/ERC1155TokenReceiver.sol";
+import {IERC1155} from "contracts/interfaces/erc1155/IERC1155.sol";
+import {IERC1155TokenReceiver} from "contracts/interfaces/erc1155/IERC1155TokenReceiver.sol";
 
 /**
- * @title CE1155V2 (Customized ERC1155)
+ * @title CE1155V2 (Customized IERC1155)
  * @author github.com/codermaybe
  * @notice 沿袭 V1 的 THE OASIS 设计：FT/NFT 混合道具、单物品授权 + forAll、管理员体系。
  * @dev V2 迭代点：
  *      - 管理权限升级为两步所有权（owner/pendingOwner）；
  *      - ItemType 独立管理（create/update）；
- *      - 保留 V1 的“单物品额度授权”语义，并统一到标准 ERC1155 转账路径；
+ *      - 保留 V1 的“单物品额度授权”语义，并统一到标准 IERC1155 转账路径；
  *      - 批量/单笔路径统一在内部 update 中做余额与事件处理（CEI）。
  */
-contract CE1155V2 is ERC1155 {
+contract CE1155V2 is IERC1155 {
     error NotOwner();
     error ZeroAddress();
     error ItemTypeNotExists(uint256 id);
@@ -107,7 +107,7 @@ contract CE1155V2 is ERC1155 {
     );
 
     // ------------------------------------------------------------------------
-    // ERC1155 Receiver 魔术值常量
+    // IERC1155 Receiver 魔术值常量
     // ------------------------------------------------------------------------
 
     bytes4 internal constant _ERC1155_ACCEPTED = 0xf23a6e61;
@@ -129,7 +129,7 @@ contract CE1155V2 is ERC1155 {
     }
 
     // ------------------------------------------------------------------------
-    // ERC1155 标准接口
+    // IERC1155 标准接口
     // ------------------------------------------------------------------------
 
     function safeTransferFrom(
@@ -543,7 +543,7 @@ contract CE1155V2 is ERC1155 {
     ) internal virtual {
         if (to.code.length > 0) {
             try
-                ERC1155TokenReceiver(to).onERC1155Received(
+                IERC1155TokenReceiver(to).onERC1155Received(
                     operator,
                     from,
                     id,
@@ -568,7 +568,7 @@ contract CE1155V2 is ERC1155 {
     ) internal virtual {
         if (to.code.length > 0) {
             try
-                ERC1155TokenReceiver(to).onERC1155BatchReceived(
+                IERC1155TokenReceiver(to).onERC1155BatchReceived(
                     operator,
                     from,
                     ids,

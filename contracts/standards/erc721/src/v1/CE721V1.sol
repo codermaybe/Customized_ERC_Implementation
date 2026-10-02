@@ -3,18 +3,18 @@
 /**
  * @title CustomizedERC721
  * @author github.com/codermaybe
- * @dev CustomizedERC20 is a customized ERC20 token with a few additional features.
+ * @dev CustomizedERC20 is a customized IERC20 token with a few additional features.
  * @dev 本合约仅用于学习和研究。所有复现均按照eip721标准。详见：https://github.com/ethereum/ERCs/blob/master/ERCS/erc-721.md
  * @dev 自行复现的erc721各项功能。interface文件夹中的所有文件为官方文档移植
  * @dev 逐行按照官方文档翻译方法的实现需求，请允许我偷点小懒用翻译 *。*
  * @dev V1版本特性：自定义_baseURI，_nextToken，以及mint、burn等方法，丰富构造器和管理功能
  */
-import {ERC721} from "contracts/interfaces/erc721/ERC721.sol";
-import {ERC721TokenReceiver} from "contracts/interfaces/erc721/ERC721TokenReceiver.sol";
+import {IERC721} from "contracts/interfaces/erc721/IERC721.sol";
+import {IERC721TokenReceiver} from "contracts/interfaces/erc721/IERC721TokenReceiver.sol";
 
 pragma solidity ^0.8.28;
 
-contract CE721V1 is ERC721 {
+contract CE721V1 is IERC721 {
     ///@dev 以下截止到balanceOf函数的实现之前均为特性部分，官方文档无设定----------------------------
     ///@dev _balanceOf 记录对应地址的余额
     ///@dev _ownerOf 记录对应token的拥有者
@@ -184,7 +184,7 @@ contract CE721V1 is ERC721 {
         require(_ownerOf[_tokenId] != address(0), unicode"不是有效的NFT");
         if (address(_to).code.length > 0) {
             //按ERC721要求在_to上调用接口对应的 onERC721Received函数
-            bytes4 retval = ERC721TokenReceiver(_to).onERC721Received(
+            bytes4 retval = IERC721TokenReceiver(_to).onERC721Received(
                 msg.sender,
                 _from,
                 _tokenId,

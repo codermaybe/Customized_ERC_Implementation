@@ -77,7 +77,7 @@ contract CE20V1_OpenZeppelinTest is Test {
         token.burn(owner, 100 ether);
     }
 
-    // ERC20 standard flows
+    // IERC20 standard flows
     function test_transfer_between_accounts() public {
         uint256 amount = 100 ether;
         token.transfer(addr1, amount);

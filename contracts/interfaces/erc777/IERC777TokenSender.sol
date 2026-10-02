@@ -2,7 +2,7 @@ pragma solidity ^0.8.28;
 
 // https://eips.ethereum.org/EIPS/eip-777
 
-interface ERC777TokensSender {
+interface IERC777TokensSender {
     function tokensToSend(
         address operator,
         address from,

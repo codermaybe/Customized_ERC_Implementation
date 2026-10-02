@@ -3,7 +3,7 @@ pragma solidity ^0.8.28;
 
 /// @title ERC-20 Token Standard, optional metadata extension
 /// @dev See https://eips.ethereum.org/EIPS/eip-20
-interface ERC20Metadata {
+interface IERC20Metadata {
     /// @notice Returns the name of the token.
     function name() external view returns (string memory);
 

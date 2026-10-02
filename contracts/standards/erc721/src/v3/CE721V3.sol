@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import {ERC721, ERC165} from "contracts/interfaces/erc721/ERC721.sol";
-import {ERC721Metadata} from "contracts/interfaces/erc721/ERC721Metadata.sol";
-import {ERC721TokenReceiver} from "contracts/interfaces/erc721/ERC721TokenReceiver.sol";
+import {IERC721, ERC165} from "contracts/interfaces/erc721/IERC721.sol";
+import {IERC721Metadata} from "contracts/interfaces/erc721/IERC721Metadata.sol";
+import {IERC721TokenReceiver} from "contracts/interfaces/erc721/IERC721TokenReceiver.sol";
 
 /**
  * @title CE721V3
  * @notice 自实现的可升级 ERC721，延续 V2 行为并以 initializer 替代 constructor。
  * @dev V3 是后续代理升级的 storage layout 基线；新增状态变量必须从 __gap 中消耗槽位。
  */
-contract CE721V3 is ERC721, ERC721Metadata, ERC165 {
+contract CE721V3 is IERC721, IERC721Metadata, ERC165 {
     // ---------------------- Storage layout ----------------------
     address public _contractOwner;
     address public _pendingOwner;
@@ -324,7 +324,7 @@ contract CE721V3 is ERC721, ERC721Metadata, ERC165 {
         if (to.code.length == 0) return;
 
         try
-            ERC721TokenReceiver(to).onERC721Received(
+            IERC721TokenReceiver(to).onERC721Received(
                 operator,
                 from,
                 tokenId,

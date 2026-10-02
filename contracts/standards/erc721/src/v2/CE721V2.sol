@@ -5,12 +5,12 @@ pragma solidity ^0.8.28;
  * @title CE721V2 (Customized ERC721)
  * @dev 外部薄壳路由；内部统一校验与状态更新（CEI）。
  */
-import {ERC721} from "contracts/interfaces/erc721/ERC721.sol";
-import {ERC165} from "contracts/interfaces/erc721/ERC721.sol";
-import {ERC721Metadata} from "contracts/interfaces/erc721/ERC721Metadata.sol";
-import {ERC721TokenReceiver} from "contracts/interfaces/erc721/ERC721TokenReceiver.sol";
+import {IERC721} from "contracts/interfaces/erc721/IERC721.sol";
+import {ERC165} from "contracts/interfaces/erc721/IERC721.sol";
+import {IERC721Metadata} from "contracts/interfaces/erc721/IERC721Metadata.sol";
+import {IERC721TokenReceiver} from "contracts/interfaces/erc721/IERC721TokenReceiver.sol";
 
-contract CE721V2 is ERC721, ERC721Metadata, ERC165 {
+contract CE721V2 is IERC721, IERC721Metadata, ERC165 {
     error NotOwner();
     error ZeroAddress();
     error TokenNotExists(uint256 tokenId);
@@ -313,7 +313,7 @@ contract CE721V2 is ERC721, ERC721Metadata, ERC165 {
     ) internal {
         if (to.code.length > 0) {
             try
-                ERC721TokenReceiver(to).onERC721Received(
+                IERC721TokenReceiver(to).onERC721Received(
                     operator,
                     from,
                     tokenId,

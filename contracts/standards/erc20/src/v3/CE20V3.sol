@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import {ERC20} from "contracts/interfaces/erc20/ERC20.sol";
-import {ERC20Metadata} from "contracts/interfaces/erc20/ERC20Metadata.sol";
+import {IERC20} from "contracts/interfaces/erc20/IERC20.sol";
+import {IERC20Metadata} from "contracts/interfaces/erc20/IERC20Metadata.sol";
 import {
     CE20AllowanceExtensions,
     CE20MintBurn,
@@ -11,12 +11,12 @@ import {
 
 /**
  * @title CE20V3
- * @notice 自实现的可升级 ERC20：initializer、两步所有权、mint/burn 与 EIP-2612 permit。
+ * @notice 自实现的可升级 IERC20：initializer、两步所有权、mint/burn 与 EIP-2612 permit。
  * @dev V3 是后续代理升级的 storage layout 基线；新增状态变量必须从 __gap 中消耗槽位。
  */
 contract CE20V3 is
-    ERC20,
-    ERC20Metadata,
+    IERC20,
+    IERC20Metadata,
     CE20AllowanceExtensions,
     CE20MintBurn,
     CE20Permit
@@ -141,7 +141,7 @@ contract CE20V3 is
         emit OwnershipTransferCancelled(_contractOwner);
     }
 
-    // ---------------------- ERC20 ----------------------
+    // ---------------------- IERC20 ----------------------
     function totalSupply() external view override returns (uint256) {
         return _totalSupply;
     }
@@ -302,7 +302,7 @@ contract CE20V3 is
             );
     }
 
-    // ---------------------- Internal ERC20 core ----------------------
+    // ---------------------- Internal IERC20 core ----------------------
     function _transfer(address from, address to, uint256 amount) internal {
         if (from == address(0) || to == address(0)) revert ZeroAddress();
 
