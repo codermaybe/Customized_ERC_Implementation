@@ -1,22 +1,29 @@
 Git hooks setup
 
-This repo uses a dedicated hooks directory. To enable hooks locally:
+本仓库用 `.githooks/` 目录存放 hooks，职责边界与 CI 分开：
 
-1) Point Git to this folder:
-   git config core.hooksPath .githooks
+- CI（`.github/workflows/ci.yml`）= 唯一门禁：`forge fmt --check`、`forge lint`、`forge build`、测试、gas 快照一致性。
+- 本地 hooks = 快速反馈与便利功能，不重复 CI 的门禁职责。
 
-2) Make hook scripts executable (Linux/macOS):
-   chmod +x .githooks/*
+启用：
 
-Included templates
-- pre-commit: active hook that generates per-contract gas reports for staged changes and stages them into the commit.
-  Gas generation is opt-in: set `GAS_ON_COMMIT=1` for a commit that intentionally updates gas reports.
-Optional envs:
-  - `GAS_INCLUDE` (comma-separated aliases, e.g., `CE20V2,CE721_OPV2`)
-  - `GAS_ENV` (label in filenames, default `local`)
-  - `GAS_KEEP` (history files to keep per alias, default `10`)
-  - `GAS_OUT_DIR` (base output directory, default `docs/gas`)
-- pre-push.example: optional sample to generate gas reports on push (not enabled by default). Rename to `pre-push` only if you want push-time reports.
+```bash
+git config core.hooksPath .githooks
+chmod +x .githooks/*   # Windows/WSL 若无可执行位：git update-index --chmod=+x .githooks/*
+```
 
-Notes
-- On Windows, Git Bash can execute Bash hooks; alternatively, call PowerShell scripts from hooks.
+`core.hooksPath` 是本地配置，不会随 clone 分发，所以 CI 不依赖 hooks。
+
+## Included hooks
+
+- `pre-commit`（默认启用）：仅在被显式要求时刷新 gas 证据，其余情况直接退出。
+  - `GAS_ON_COMMIT=1 git commit …`：刷新 `.gas-snapshot`（权威记录，按测试粒度）并为受影响合约生成 `docs/gas/<Alias>/` 报告，然后一并 stage。
+  - 逻辑：先 `forge snapshot`，再用 `GAS_INCLUDE=<aliases>` 调 `script/analyze/generate-gas-reports.sh`。
+  - 可选环境变量：`GAS_INCLUDE`、`GAS_ENV`（文件名标签，默认 `local`）、`GAS_KEEP`（每个别名保留历史数，默认 10）、`GAS_OUT_DIR`（默认 `docs/gas`）。
+- `pre-push.example`（默认不启用）：`forge snapshot --check --tolerance 5`，即 CI gas 门禁的本地镜像。需要时重命名为 `pre-push`。
+
+## Notes
+
+- `.gas-snapshot` 必须用 default profile 生成（fuzz runs = 256）。`FOUNDRY_PROFILE=ci forge snapshot` 的 fuzz 行会变化，不要用来生成快照文件。
+- gas 快照的定时自动刷新在 CI（`gas-refresh` job），无需手工执行脚本。
+- Windows 下可用 Git Bash 执行 bash hooks。

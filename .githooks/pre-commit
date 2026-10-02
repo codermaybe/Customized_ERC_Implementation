@@ -54,13 +54,20 @@ if [[ -z "$ALIASES" ]]; then
 fi
 
 # Gas generation is opt-in. Normal commits should be able to save intermediate work.
-# Use GAS_ON_COMMIT=1 when a gas report is intentionally part of the commit.
+# Use GAS_ON_COMMIT=1 when a gas snapshot / report update is intentionally part of the commit.
+# Formatting, linting, build and tests are NOT run here: they are enforced by CI.
 if [[ "${GAS_ON_COMMIT:-0}" != "1" ]]; then
   exit 0
 fi
 
+# Authoritative record: .gas-snapshot (per-test gas, checked by CI with --tolerance)
+echo "[pre-commit] Refreshing .gas-snapshot"
+forge snapshot
+
+# Human-readable per-contract reports under docs/gas/
 INCLUDE=$(echo "$ALIASES" | sed -E 's/[[:space:]]+/,/g')
 export GAS_INCLUDE="$INCLUDE"
 echo "[pre-commit] Gas for aliases: $GAS_INCLUDE"
 bash script/analyze/generate-gas-reports.sh
-git add docs/gas
+
+git add .gas-snapshot docs/gas

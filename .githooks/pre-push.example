@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
+# set -e: exit on error; set -o pipe-pipefail: fail pipeline on any error
 set -euo pipefail
 
-echo "[pre-push] Generating per-contract gas reports…"
-# Optional: set GAS_INCLUDE to comma-separated aliases, e.g. "CE20V2,CE721V2"
-bash scripts/generate-gas-reports.sh
-
-echo "[pre-push] Gas reports generated."
+# Local mirror of the CI gas gate: fail fast if .gas-snapshot is out of sync.
+# Generation itself is automated in CI (scheduled refresh job), so this hook
+# only verifies. Set GAS_TOLERANCE to change the tolerated deviation (percent).
+echo "[pre-push] Checking that .gas-snapshot is in sync…"
+forge snapshot --check --tolerance "${GAS_TOLERANCE:-5}"
+echo "[pre-push] .gas-snapshot in sync."

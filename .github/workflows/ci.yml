@@ -4,6 +4,13 @@ on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    # 每周一 03:00 UTC 刷新 gas 证据
+    - cron: "0 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build-and-test:
@@ -19,8 +26,56 @@ jobs:
       - name: Format check
         run: forge fmt --check
 
+      - name: Lint
+        run: forge lint
+
       - name: Build
         run: forge build --sizes
 
       - name: Test
         run: FOUNDRY_PROFILE=ci forge test -vvv
+
+  gas-snapshot:
+    # .gas-snapshot 是权威 gas 记录：合约改动未同步快照时门禁失败
+    runs-on: ubuntu-latest
+    continue-on-error: ${{ github.event_name == 'schedule' }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Init submodules
+        run: git submodule update --init
+
+      - name: Check gas snapshot
+        # 必须用 default profile（fuzz runs = 256），与快照生成方式一致
+        run: forge snapshot --check --tolerance 5
+
+  gas-refresh:
+    # 定时自动刷新 gas 证据并直接提交，无需人工执行脚本
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Init submodules
+        run: git submodule update --init
+
+      - name: Refresh .gas-snapshot
+        run: forge snapshot
+
+      - name: Refresh per-contract gas reports
+        run: bash script/analyze/generate-gas-reports.sh
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(gas): 自动刷新 gas 快照与报告"
+          file_pattern: ".gas-snapshot docs/gas/**"

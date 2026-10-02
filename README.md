@@ -56,7 +56,7 @@ forge test --match-path test/standards/erc721/V3/CE721V3.t.sol
 FOUNDRY_PROFILE=ci forge test   # CI 配置：fuzz runs = 1000
 forge fmt                       # 格式化（forge fmt --check 检查）
 forge lint                      # 静态检查
-bash script/analyze/generate-gas-reports.sh   # 生成 gas 报告到 docs/gas
+forge snapshot                  # 生成 gas 快照 .gas-snapshot
 ```
 
 ## 亮点与差异
@@ -74,11 +74,29 @@ bash script/analyze/generate-gas-reports.sh   # 生成 gas 报告到 docs/gas
 
 提示：CE20V2 与 CE20V2_OpenZeppelin 的 Permit digest 兼容（同域、同版本），但错误类型不同。
 
-## Gas 报告
+## Gas 记录（自动化）
 
-`script/analyze/generate-gas-reports.sh` 会为每个测试合约生成 gas 报告，写入 `docs/gas/<Alias>/`，保留最近 10 份历史与 `-latest` 快照。可用 `GAS_INCLUDE=CE20V2,CE721V2` 只跑指定合约。
+两层记录，都不需要人工跑脚本：
 
-仓库通过 git hook 接入：默认 pre-commit 不跑 gas，`GAS_ON_COMMIT=1 git commit` 时才生成并一并提交。
+1. `.gas-snapshot`（权威记录）：`forge snapshot` 生成，按测试函数粒度记录 gas。CI 的 `gas-snapshot` job 执行 `forge snapshot --check --tolerance 5`，合约改了但快照没同步就直接失败。
+2. `docs/gas/<Alias>/`（可读报告）：`script/analyze/generate-gas-reports.sh` 为每个测试合约生成 Markdown 报告，保留最近 10 份历史与 `-latest`。CI 的 `gas-refresh` job 每周一自动重算并直接提交；也可在 Actions 页面手动触发。
+
+本地开发：
+
+```bash
+forge snapshot                                # 改了合约后刷新权威快照
+forge snapshot --check --tolerance 5          # 本地预检（与 CI 门禁一致）
+forge snapshot --diff --diff-sort percentage-desc   # 与上次快照对比，看 gas 变化
+GAS_ON_COMMIT=1 git commit                    # 提交时顺带刷新快照与报告
+```
+
+注意：`.gas-snapshot` 必须用 default profile（fuzz runs = 256）生成；`FOUNDRY_PROFILE=ci` 下 fuzz 行的 runs/均值会变化，不要用它生成快照文件。
+
+## CI 与本地 hooks 的分工
+
+- CI 是唯一门禁：`forge fmt --check`、`forge lint`、`forge build`、测试、gas 快照一致性。
+- `.githooks/` 只做本地快速反馈（可选的 gas 刷新、push 前快照预检），启用方式见 `.githooks/README.md`。
+
 
 ## 免责声明
 
