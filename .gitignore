@@ -1,27 +1,22 @@
-node_modules
+node_modules/
 .env
-dev
+dev/
 
-# Hardhat files
-/cache
-/artifacts
+# Foundry build artifacts
+/out/
+/cache/
+/cache-foundry/
+/broadcast/
 
-# Foundry files
-/out
-/cache-foundry
+# Legacy Hardhat leftovers (safe to delete locally)
+/artifacts/
 
-# TypeChain files
-/typechain
-/typechain-types
+# Dependencies are git submodules (see .gitmodules), not vendored files
 
 # solidity-coverage files
 /coverage
 /coverage.json
 
-# Hardhat Ignition default folder for deployments against a local node
-ignition/deployments/chain-31337
-/out/
-/cache/
-/broadcast/
+# Local drafts
 /docs/drafts/
 /legacy/

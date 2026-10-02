@@ -1,68 +1,85 @@
 # Customized ERC Implementations
 
-面向学习与演示的多标准合约集合，涵盖 ERC20 / ERC721 / ERC1155 两套实现风格：
-- V1：简化自研（含 Hardhat JS 测试）
-- V2：更贴近生产的精简实现与 OpenZeppelin 版本（含 Foundry 测试）
+面向学习与演示的多标准合约集合，涵盖 ERC20 / ERC721 / ERC1155 的自研实现与 OpenZeppelin 对照实现，工具链为 Foundry。
 
-本仓库的目标是对比“自实现与基于 OpenZeppelin”的差异，在接口一致性、错误类型、Permit（EIP‑2612）等方面给出清晰示例。
+- V1：简化自研（教学版）
+- V2：更贴近生产的精简实现，含 Ownable2Step、admin 体系
+- V3：可升级基线（initializer + storage gap）
+
+本仓库的目标是对比“自实现与基于 OpenZeppelin”的差异，在接口一致性、错误类型、Permit（EIP‑2612）、可升级性等方面给出清晰示例。
 
 ## 目录结构
-- `contracts/standards/erc20/src`
-  - `v1/CE20V1.sol` 自研 ERC20（教学版）
-  - `v1/CE20V1_OpenZeppelin.sol` 基于 OZ 的 ERC20（V1）
-  - `v2/CE20V2.sol` 自研 ERC20 + Permit（EIP‑2612 版本号为 "2"）
-  - `v2/CE20V2_OpenZeppelin.sol` 基于 OZ ERC20 + 自实现 Permit("2")，接口与 CE20V2 对齐
-- `contracts/standards/erc721/src`：最小 ERC721 与 OZ 版
-- `contracts/standards/erc1155/src`：最小 ERC1155 与 OZ 版接口
-- `test/standards/erc20/V1`：Hardhat JS 测试（V1）
-- `test/standards/erc20/V2`：Foundry 测试（V2，自研与 OZ 版）
 
-## 亮点与差异
-- CE20V2（自研）
-  - ERC20 基础能力 + 仅 owner 可 mint + burn/burnFrom
-  - 自定义错误（ZeroAddress/InsufficientBalance/…）
-  - EIP‑2612 Permit：显式 `permit`、`nonces`、`DOMAIN_SEPARATOR`，EIP‑712 版本为 "2"
-- CE20V2_OpenZeppelin（OZ 版）
-  - 继承 `ERC20` + `Ownable`，保留 OZ 的错误类型（IERC20Errors）与事件语义
-  - 自实现 Permit（不修改 OZ 源码），同样暴露 `permit/nonces/DOMAIN_SEPARATOR`，EIP‑712 版本为 "2"
+```text
+contracts/
+  interfaces/          # 官方标准接口（IERC20 / IERC721 / IERC1155 / IERC165 / IERC4626 / IERC777 / IERC3525）
+  standards/
+    erc20/src/v1..v3   # 自研 CE20V1..V3 + OpenZeppelin 对照版
+    erc721/src/v1..v3  # 自研 CE721V1..V3 + OpenZeppelin 对照版
+    erc1155/src/v1..v2 # 自研 CE1155V1..V2 + OpenZeppelin 对照版
+    erc3525/src/v1     # WIP，尚未完成
+test/standards/<erc>/V<n>/
+script/
+  analyze/             # gas 报告生成
+  deployment/          # 部署脚本
+  upgrade/             # 升级脚本
+docs/
+  architecture/        # 仓库组织规则
+  gas/                 # gas 报告快照
+lib/                   # git submodule：forge-std v1.11.0、openzeppelin-contracts(-upgradeable) v5.4.0
+```
 
-提示：两者 Permit 的 digest 兼容（同域、同版本）；但错误类型不同（自定义错误 vs. OZ 的 IERC20Errors）。
+命名约定：自研实现用 `CE<erc><version>`，OpenZeppelin 对照实现用 `CE<erc><version>_OpenZeppelin`。
 
 ## 前置条件
-- Node.js 18+，`npm` 或 `pnpm`
-- Foundry（可选，用于 Solidity 测试）：`curl -L https://foundry.paradigm.xyz | bash` 并执行 `foundryup`
 
-安装依赖：
-```
-npm i
-```
+Foundry：`curl -L https://foundry.paradigm.xyz | bash` 然后 `foundryup`。
 
-## 测试
-本仓库同时提供 Hardhat（V1）与 Foundry（V2）两套测试。
+安装依赖（`lib/` 下的依赖为 git submodule，版本已在 `.gitmodules` 固定，无需 Node.js）：
 
-### Foundry（推荐用于 V2）
-- 全量：`forge test -vv`
-- 仅跑某文件：`forge test --match-path test/standards/erc20/V2/CE20V2_OpenZeppelin.t.sol`
-- 仅跑某合约：`forge test --match-contract CE20V2_OpenZeppelinTest`
-- 仅跑某用例：`forge test --match-test permit_skeleton`
-
-### Hardhat（用于 V1）
-- 全量：`npx hardhat test`
-- 指定文件：`npx hardhat test ./test/standards/erc20/V1/CE20V1.js`
-- 名称匹配：`npx hardhat test --grep "Your_test_name"`
-
-## 部署（Hardhat Ignition）
-在 `hardhat.config.js` 配置 `networks`（URL 与私钥）。
-
-示例：
-```
-npx hardhat ignition deploy ./ignition/modules/standards/erc20/V1/CE20V1.js --network <your_network>
+```bash
+git clone --recurse-submodules <repo-url>
+# 已有克隆只需初始化：
+git submodule update --init
 ```
 
-## Permit（EIP‑2612）说明（V2）
-- 域：`EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)`
-- 版本号：固定为 "2"（自研与 OZ 版保持一致）
-- 方法：`permit(owner, spender, value, deadline, v, r, s)`；`nonces(owner)`；`DOMAIN_SEPARATOR()`
+也可以用 `forge install` 完成 submodule 初始化。
+
+## 常用命令
+
+```bash
+forge build                     # 编译
+forge test                      # 全量测试
+forge test -vv                  # 测试 + 详细 trace
+forge test --match-contract CE20V2Test
+forge test --match-path test/standards/erc721/V3/CE721V3.t.sol
+FOUNDRY_PROFILE=ci forge test   # CI 配置：fuzz runs = 1000
+forge fmt                       # 格式化（forge fmt --check 检查）
+forge lint                      # 静态检查
+bash script/analyze/generate-gas-reports.sh   # 生成 gas 报告到 docs/gas
+```
+
+## 亮点与差异
+
+- CE20V2 / CE20V2_OpenZeppelin
+  - ERC20 基础能力 + 仅 owner 可 mint + burn/burnFrom
+  - 自定义错误（ZeroAddress / InsufficientBalance / …）vs OZ 的 `IERC20Errors`
+  - EIP‑2612 Permit：显式 `permit`、`nonces`、`DOMAIN_SEPARATOR`，EIP‑712 版本固定为 `"2"`
+- CE721V1..V3
+  - 自定义 `_baseURI`、`_nextToken`、mint/burn、管理员体系
+  - V3 以 initializer 替代 constructor，作为后续代理升级的 storage layout 基线
+- CE1155V1 / V2
+  - FT/NFT 混合道具、单物品授权 + operator 全局授权
+  - 批量/单笔路径统一在内部 update 中处理余额与事件（CEI）
+
+提示：CE20V2 与 CE20V2_OpenZeppelin 的 Permit digest 兼容（同域、同版本），但错误类型不同。
+
+## Gas 报告
+
+`script/analyze/generate-gas-reports.sh` 会为每个测试合约生成 gas 报告，写入 `docs/gas/<Alias>/`，保留最近 10 份历史与 `-latest` 快照。可用 `GAS_INCLUDE=CE20V2,CE721V2` 只跑指定合约。
+
+仓库通过 git hook 接入：默认 pre-commit 不跑 gas，`GAS_ON_COMMIT=1 git commit` 时才生成并一并提交。
 
 ## 免责声明
+
 示例代码主要用于学习演示。请在充分审计与测试后再用于生产环境，风险自担。

@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: foundry-rs/foundry-toolchain@v1
+
+      - name: Init submodules
+        run: git submodule update --init
+
+      - name: Build
+        run: forge build --sizes
+
+      - name: Test
+        run: FOUNDRY_PROFILE=ci forge test -vvv
