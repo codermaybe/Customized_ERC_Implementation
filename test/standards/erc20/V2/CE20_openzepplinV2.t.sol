@@ -11,17 +11,11 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 contract CE20V2_OpenZeppelinTest is Test {
     // 事件声明与被测合约一致
     event Transfer(address indexed from, address indexed to, uint256 value);
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 value
-    );
+    event Approval(address indexed owner, address indexed spender, uint256 value);
 
     // EIP-2612
     bytes32 constant PERMIT_TYPEHASH =
-        keccak256(
-            "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
-        );
+        keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
     // 账户与常量
     uint256 ownerPrivateKey = 0xA11CE; // 仅用于测试
@@ -41,14 +35,8 @@ contract CE20V2_OpenZeppelinTest is Test {
     function test_metadata() public {
         string memory nameValue = tokenUnderTest.name();
         string memory symbolValue = tokenUnderTest.symbol();
-        require(
-            keccak256(bytes(nameValue)) == keccak256(bytes("CE20V2")),
-            "name mismatch"
-        );
-        require(
-            keccak256(bytes(symbolValue)) == keccak256(bytes("CE20V2")),
-            "symbol mismatch"
-        );
+        require(keccak256(bytes(nameValue)) == keccak256(bytes("CE20V2")), "name mismatch");
+        require(keccak256(bytes(symbolValue)) == keccak256(bytes("CE20V2")), "symbol mismatch");
 
         require(tokenUnderTest.decimals() == 18, "decimals mismatch");
         require(tokenUnderTest.totalSupply() == 0, "initial supply not zero");
@@ -75,12 +63,7 @@ contract CE20V2_OpenZeppelinTest is Test {
         tokenUnderTest.mint(accountAlice, 10000);
 
         vm.prank(accountAlice);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IERC20Errors.ERC20InvalidReceiver.selector,
-                address(0)
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(IERC20Errors.ERC20InvalidReceiver.selector, address(0)));
         tokenUnderTest.transfer(address(0), 1);
     }
 
@@ -115,55 +98,28 @@ contract CE20V2_OpenZeppelinTest is Test {
     function test_permit_success() public {
         address permitOwner = accountOwner;
         uint256 nonce = tokenUnderTest.nonces(permitOwner);
-        uint256 previousAllowance = tokenUnderTest.allowance(
-            permitOwner,
-            accountSpender
-        );
+        uint256 previousAllowance = tokenUnderTest.allowance(permitOwner, accountSpender);
         uint256 value = 1;
         uint256 deadline = block.timestamp + 100; // not expired
-        bytes32 structHash = keccak256(
-            abi.encode(
-                PERMIT_TYPEHASH,
-                permitOwner,
-                accountSpender,
-                value,
-                nonce,
-                deadline
-            )
-        );
+        bytes32 structHash = keccak256(abi.encode(PERMIT_TYPEHASH, permitOwner, accountSpender, value, nonce, deadline));
         bytes32 domain = tokenUnderTest.DOMAIN_SEPARATOR();
-        bytes32 digest = keccak256(
-            abi.encodePacked("\x19\x01", domain, structHash)
-        );
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domain, structHash));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(ownerPrivateKey, digest);
-        tokenUnderTest.permit(
-            permitOwner,
-            accountSpender,
-            value,
-            deadline,
-            v,
-            r,
-            s
-        );
+        tokenUnderTest.permit(permitOwner, accountSpender, value, deadline, v, r, s);
         require(previousAllowance == 0);
         require(tokenUnderTest.allowance(permitOwner, accountSpender) == value);
         require(tokenUnderTest.nonces(permitOwner) == nonce + 1);
     }
 
     // 7) 无限授权（uint256.max）：transferFrom 后 allowance 不应减少
-    function test_infiniteAllowance_transferFrom_doesNotDecrease()
-        public
-    {
+    function test_infiniteAllowance_transferFrom_doesNotDecrease() public {
         vm.prank(accountOwner);
         tokenUnderTest.mint(accountAlice, 1000);
         vm.prank(accountAlice);
         tokenUnderTest.approve(accountSpender, type(uint256).max);
         vm.prank(accountSpender);
         tokenUnderTest.transferFrom(accountAlice, accountBob, 1);
-        require(
-            tokenUnderTest.allowance(accountAlice, accountSpender) ==
-                type(uint256).max
-        );
+        require(tokenUnderTest.allowance(accountAlice, accountSpender) == type(uint256).max);
     }
 
     // 8) decreaseAllowance 超额减少应当 revert（OZ 适配：花费超额应当 revert ERC20InsufficientAllowance）
@@ -173,26 +129,14 @@ contract CE20V2_OpenZeppelinTest is Test {
         vm.stopPrank();
 
         vm.prank(accountSpender);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IERC20Errors.ERC20InsufficientAllowance.selector,
-                accountSpender,
-                1,
-                2
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(IERC20Errors.ERC20InsufficientAllowance.selector, accountSpender, 1, 2));
         tokenUnderTest.transferFrom(accountAlice, accountBob, 2);
     }
 
     // 9) onlyOwner：非所有者 mint 应当 revert（Ownable）
     function test_mint_onlyOwner_revertsForNonOwner() public {
         vm.prank(accountAlice);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                Ownable.OwnableUnauthorizedAccount.selector,
-                accountAlice
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(Ownable.OwnableUnauthorizedAccount.selector, accountAlice));
         tokenUnderTest.mint(accountAlice, 2);
     }
 
@@ -218,18 +162,8 @@ contract CE20V2_OpenZeppelinTest is Test {
         uint256 value = 1;
         uint256 deadline = block.timestamp - 1;
 
-        vm.expectRevert(
-            abi.encodeWithSelector(CE20V2_OpenZeppelin.PermitExpired.selector, deadline)
-        );
-        tokenUnderTest.permit(
-            owner,
-            accountSpender,
-            value,
-            deadline,
-            27,
-            bytes32(0),
-            bytes32(0)
-        );
+        vm.expectRevert(abi.encodeWithSelector(CE20V2_OpenZeppelin.PermitExpired.selector, deadline));
+        tokenUnderTest.permit(owner, accountSpender, value, deadline, 27, bytes32(0), bytes32(0));
     }
 
     // 12) permit 使用错误签名者应当 revert（InvalidSignature）
@@ -239,31 +173,17 @@ contract CE20V2_OpenZeppelinTest is Test {
         uint256 nonce = tokenUnderTest.nonces(owner);
         uint256 deadline = block.timestamp + 100;
 
-        bytes32 structHash = keccak256(
-            abi.encode(
-                PERMIT_TYPEHASH,
-                owner,
-                accountSpender,
-                value,
-                nonce,
-                deadline
-            )
-        );
+        bytes32 structHash = keccak256(abi.encode(PERMIT_TYPEHASH, owner, accountSpender, value, nonce, deadline));
         bytes32 domain = tokenUnderTest.DOMAIN_SEPARATOR();
-        bytes32 digest = keccak256(
-            abi.encodePacked("\x19\x01", domain, structHash)
-        );
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domain, structHash));
 
         uint256 wrongPrivateKey = uint256(0xBEEF);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(wrongPrivateKey, digest);
 
-        vm.expectRevert(
-            abi.encodeWithSelector(CE20V2_OpenZeppelin.InvalidSignature.selector)
-        );
+        vm.expectRevert(abi.encodeWithSelector(CE20V2_OpenZeppelin.InvalidSignature.selector));
         tokenUnderTest.permit(owner, accountSpender, value, deadline, v, r, s);
     }
 
-    
     // 13) 事件断言（Transfer / Approval）
     function test_events_transfer_and_approval() public {
         uint256 amount = 200;
@@ -279,6 +199,7 @@ contract CE20V2_OpenZeppelinTest is Test {
     }
 
     uint256[] public fixtureT14_transferAmount = [0, 1e18, type(uint256).max];
+
     // 14) Fuzz 测试
     function test_fuzz_transfer(uint256 T14_transferAmount) public {
         vm.assume(T14_transferAmount <= 1e18);
@@ -311,17 +232,10 @@ contract CE20V2_OpenZeppelinTest is Test {
         v2.transferFrom(accountAlice, accountBob, 3);
 
         require(op.totalSupply() == v2.totalSupply(), "supply mismatch");
+        require(op.balanceOf(accountAlice) == v2.balanceOf(accountAlice), "alice balance mismatch");
+        require(op.balanceOf(accountBob) == v2.balanceOf(accountBob), "bob balance mismatch");
         require(
-            op.balanceOf(accountAlice) == v2.balanceOf(accountAlice),
-            "alice balance mismatch"
-        );
-        require(
-            op.balanceOf(accountBob) == v2.balanceOf(accountBob),
-            "bob balance mismatch"
-        );
-        require(
-            op.allowance(accountAlice, accountSpender) ==
-                v2.allowance(accountAlice, accountSpender),
+            op.allowance(accountAlice, accountSpender) == v2.allowance(accountAlice, accountSpender),
             "allowance mismatch"
         );
     }

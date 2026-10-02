@@ -5,30 +5,16 @@ import {Test} from "forge-std/Test.sol";
 import {CE1155V2} from "contracts/standards/erc1155/src/v2/CE1155V2.sol";
 
 contract Mock1155Receiver {
-    function onERC1155Received(
-        address,
-        address,
-        uint256,
-        uint256,
-        bytes calldata
-    ) external pure returns (bytes4) {
-        return bytes4(
-            keccak256("onERC1155Received(address,address,uint256,uint256,bytes)")
-        );
+    function onERC1155Received(address, address, uint256, uint256, bytes calldata) external pure returns (bytes4) {
+        return bytes4(keccak256("onERC1155Received(address,address,uint256,uint256,bytes)"));
     }
 
-    function onERC1155BatchReceived(
-        address,
-        address,
-        uint256[] calldata,
-        uint256[] calldata,
-        bytes calldata
-    ) external pure returns (bytes4) {
-        return bytes4(
-            keccak256(
-                "onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"
-            )
-        );
+    function onERC1155BatchReceived(address, address, uint256[] calldata, uint256[] calldata, bytes calldata)
+        external
+        pure
+        returns (bytes4)
+    {
+        return bytes4(keccak256("onERC1155BatchReceived(address,address,uint256[],uint256[],bytes)"));
     }
 }
 
@@ -78,9 +64,7 @@ contract CE1155V2Test is Test {
         token.mint(alice, NFT_ID, 1, "");
         assertEq(token.balanceOf(alice, NFT_ID), 1);
 
-        vm.expectRevert(
-            abi.encodeWithSelector(CE1155V2.NFTAlreadyAssigned.selector, NFT_ID)
-        );
+        vm.expectRevert(abi.encodeWithSelector(CE1155V2.NFTAlreadyAssigned.selector, NFT_ID));
         token.mint(bob, NFT_ID, 1, "");
 
         vm.expectRevert(CE1155V2.NFTAmountInvalid.selector);
@@ -190,9 +174,7 @@ contract CE1155V2Test is Test {
 
     function test_update_type_reject_when_nft_owned() public {
         token.mint(alice, NFT_ID, 1, "");
-        vm.expectRevert(
-            abi.encodeWithSelector(CE1155V2.NFTTypeChangeBlocked.selector, NFT_ID)
-        );
+        vm.expectRevert(abi.encodeWithSelector(CE1155V2.NFTTypeChangeBlocked.selector, NFT_ID));
         token.updateItemType(NFT_ID, "final_key", "", false);
     }
 

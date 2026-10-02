@@ -1,6 +1,7 @@
 pragma solidity ^0.8.28;
 
 import {IERC3525} from "./IERC3525.sol";
+
 /**
  * @title ERC-3525 Semi-Fungible Token Standard, optional extension for metadata
  * @dev Interfaces for any contract that wants to support query of the Uniform Resource Identifier

@@ -61,12 +61,7 @@ contract CE20V1_OpenZeppelinTest is Test {
 
     function test_burn_more_than_balance_reverts() public {
         vm.expectRevert(
-            abi.encodeWithSelector(
-                IERC20Errors.ERC20InsufficientBalance.selector,
-                addr1,
-                0,
-                type(uint256).max
-            )
+            abi.encodeWithSelector(IERC20Errors.ERC20InsufficientBalance.selector, addr1, 0, type(uint256).max)
         );
         token.burn(addr1, type(uint256).max);
     }
@@ -91,14 +86,7 @@ contract CE20V1_OpenZeppelinTest is Test {
     function test_transfer_insufficient_balance_reverts() public {
         uint256 invalid = 10_000 ether;
         vm.prank(addr2);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IERC20Errors.ERC20InsufficientBalance.selector,
-                addr2,
-                0,
-                invalid
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(IERC20Errors.ERC20InsufficientBalance.selector, addr2, 0, invalid));
         token.transfer(owner, invalid);
     }
 

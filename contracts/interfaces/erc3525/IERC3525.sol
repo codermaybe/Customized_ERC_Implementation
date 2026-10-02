@@ -5,7 +5,8 @@ pragma solidity ^0.8.28;
  * Note: the ERC-165 identifier for this interface is 0xd5358140.
  */
 interface IERC3525 {
-    /* is IERC165, IERC721 */ /**
+    /* is IERC165, IERC721 */
+    /**
      * @dev MUST emit when value of a token is transferred to another token with the same slot,
      *  including zero value transfers (_value == 0) as well as transfers when tokens are created
      *  (`_fromTokenId` == 0) or destroyed (`_toTokenId` == 0).
@@ -13,11 +14,7 @@ interface IERC3525 {
      * @param _toTokenId The token id to transfer value to
      * @param _value The transferred value
      */
-    event TransferValue(
-        uint256 indexed _fromTokenId,
-        uint256 indexed _toTokenId,
-        uint256 _value
-    );
+    event TransferValue(uint256 indexed _fromTokenId, uint256 indexed _toTokenId, uint256 _value);
 
     /**
      * @dev MUST emit when the approval value of a token is set or changed.
@@ -25,11 +22,7 @@ interface IERC3525 {
      * @param _operator The operator to approve for
      * @param _value The maximum value that `_operator` is allowed to manage
      */
-    event ApprovalValue(
-        uint256 indexed _tokenId,
-        address indexed _operator,
-        uint256 _value
-    );
+    event ApprovalValue(uint256 indexed _tokenId, address indexed _operator, uint256 _value);
 
     /**
      * @dev MUST emit when the slot of a token is set or changed.
@@ -37,11 +30,7 @@ interface IERC3525 {
      * @param _oldSlot The previous slot of the token
      * @param _newSlot The updated slot of the token
      */
-    event SlotChanged(
-        uint256 indexed _tokenId,
-        uint256 indexed _oldSlot,
-        uint256 indexed _newSlot
-    );
+    event SlotChanged(uint256 indexed _tokenId, uint256 indexed _oldSlot, uint256 indexed _newSlot);
 
     /**
      * @notice Get the number of decimals the token uses for value - e.g. 6, means the user
@@ -75,11 +64,7 @@ interface IERC3525 {
      * @param _operator The operator to be approved
      * @param _value The maximum value of `_toTokenId` that `_operator` is allowed to manage
      */
-    function approve(
-        uint256 _tokenId,
-        address _operator,
-        uint256 _value
-    ) external payable;
+    function approve(uint256 _tokenId, address _operator, uint256 _value) external payable;
 
     /**
      * @notice Get the maximum value of a token that an operator is allowed to manage.
@@ -87,10 +72,7 @@ interface IERC3525 {
      * @param _operator The address of an operator
      * @return The current approval value of `_tokenId` that `_operator` is allowed to manage
      */
-    function allowance(
-        uint256 _tokenId,
-        address _operator
-    ) external view returns (uint256);
+    function allowance(uint256 _tokenId, address _operator) external view returns (uint256);
 
     /**
      * @notice Transfer value from a specified token to another specified token with the same slot.
@@ -105,11 +87,7 @@ interface IERC3525 {
      * @param _toTokenId The token to transfer value to
      * @param _value The transferred value
      */
-    function transferFrom(
-        uint256 _fromTokenId,
-        uint256 _toTokenId,
-        uint256 _value
-    ) external payable;
+    function transferFrom(uint256 _fromTokenId, uint256 _toTokenId, uint256 _value) external payable;
 
     /**
      * @notice Transfer value from a specified token to an address. The caller should confirm that
@@ -126,9 +104,5 @@ interface IERC3525 {
      * @param _value The transferred value
      * @return ID of the token which receives the transferred value
      */
-    function transferFrom(
-        uint256 _fromTokenId,
-        address _to,
-        uint256 _value
-    ) external payable returns (uint256);
+    function transferFrom(uint256 _fromTokenId, address _to, uint256 _value) external payable returns (uint256);
 }

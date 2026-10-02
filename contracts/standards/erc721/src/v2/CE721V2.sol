@@ -36,10 +36,7 @@ contract CE721V2 is IERC721, IERC721Metadata, ERC165 {
     address public _pendingOwner;
     // 所有权事件
     event OwnerChanged(address indexed oldOwner, address indexed newOwner);
-    event OwnershipTransferRequested(
-        address indexed oldOwner,
-        address indexed pendingOwner
-    );
+    event OwnershipTransferRequested(address indexed oldOwner, address indexed pendingOwner);
     event OwnershipTransferCancelled(address indexed owner);
 
     // 元数据
@@ -56,11 +53,7 @@ contract CE721V2 is IERC721, IERC721Metadata, ERC165 {
     bytes4 internal constant _ERC721_RECEIVED = 0x150b7a02;
 
     // 构造器：初始化 owner/name/symbol/baseURI/_nextToken
-    constructor(
-        string memory name_,
-        string memory symbol_,
-        string memory baseURI_
-    ) {
+    constructor(string memory name_, string memory symbol_, string memory baseURI_) {
         // 初始化基本元数据与所有者
         _contractOwner = msg.sender;
         _name = name_;
@@ -76,9 +69,7 @@ contract CE721V2 is IERC721, IERC721Metadata, ERC165 {
 
     // -------------------- ERC165 --------------------
     // ERC165: 接口支持查询
-    function supportsInterface(
-        bytes4 interfaceID
-    ) external pure returns (bool) {
+    function supportsInterface(bytes4 interfaceID) external pure returns (bool) {
         if (interfaceID == 0x01ffc9a7) return true; // ERC165
         if (interfaceID == 0x80ac58cd) return true; // ERC721
         if (interfaceID == 0x5b5e139f) return true; // ERC721Metadata
@@ -148,31 +139,18 @@ contract CE721V2 is IERC721, IERC721Metadata, ERC165 {
     }
 
     // 转移：外部路由；内部 `_transfer` 校验；safe 版追加回调
-    function safeTransferFrom(
-        address _from,
-        address _to,
-        uint256 _tokenId,
-        bytes memory data
-    ) public payable {
+    function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes memory data) public payable {
         _transfer(_from, _to, _tokenId);
         _requireOnReceived(msg.sender, _from, _to, _tokenId, data);
     }
 
     // 转移：safeTransferFrom 重载（data 为空串）
-    function safeTransferFrom(
-        address _from,
-        address _to,
-        uint256 _tokenId
-    ) external payable {
+    function safeTransferFrom(address _from, address _to, uint256 _tokenId) external payable {
         safeTransferFrom(_from, _to, _tokenId, bytes(""));
     }
 
     // 转移：非 safe 版（不做回调）
-    function transferFrom(
-        address _from,
-        address _to,
-        uint256 _tokenId
-    ) external payable {
+    function transferFrom(address _from, address _to, uint256 _tokenId) external payable {
         _transfer(_from, _to, _tokenId);
     }
 
@@ -195,10 +173,7 @@ contract CE721V2 is IERC721, IERC721Metadata, ERC165 {
     }
 
     // ERC721: 全局授权查询
-    function isApprovedForAll(
-        address _owner,
-        address _operator
-    ) external view returns (bool) {
+    function isApprovedForAll(address _owner, address _operator) external view returns (bool) {
         return _approvalForAll[_owner][_operator];
     }
 
@@ -208,11 +183,7 @@ contract CE721V2 is IERC721, IERC721Metadata, ERC165 {
     }
 
     // 铸造：safe 版（带 data）
-    function safeMint(
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) external onlyOwner {
+    function safeMint(address to, uint256 tokenId, bytes memory data) external onlyOwner {
         _mint(to, tokenId);
         _requireOnReceived(msg.sender, address(0), to, tokenId, data);
     }
@@ -245,24 +216,19 @@ contract CE721V2 is IERC721, IERC721Metadata, ERC165 {
     }
 
     // _isApprovedOrOwner：是否为 owner/单一授权/全局授权
-    function _isApprovedOrOwner(
-        address spender,
-        uint256 tokenId
-    ) internal view returns (bool) {
+    function _isApprovedOrOwner(address spender, uint256 tokenId) internal view returns (bool) {
         address tokenOwner = _ownerOf[tokenId];
         if (tokenOwner == address(0)) revert TokenNotExists(tokenId);
-        if (_approvedOf[tokenId] == spender || tokenOwner == spender)
+        if (_approvedOf[tokenId] == spender || tokenOwner == spender) {
             return true;
+        }
         return _approvalForAll[tokenOwner][spender];
     }
 
     // _approve：设置单一授权并触发事件
     function _approve(address to, uint256 tokenId, address owner) internal {
         if (!_exists(tokenId)) revert TokenNotExists(tokenId);
-        if (
-            msg.sender != _ownerOf[tokenId] &&
-            !_approvalForAll[owner][msg.sender]
-        ) revert NotAuthorized();
+        if (msg.sender != _ownerOf[tokenId] && !_approvalForAll[owner][msg.sender]) revert NotAuthorized();
         if (to == owner) revert ApproveToCurrentOwner();
         _approvedOf[tokenId] = to;
         emit Approval(owner, to, tokenId);
@@ -293,10 +259,7 @@ contract CE721V2 is IERC721, IERC721Metadata, ERC165 {
     function _burn(uint256 tokenId) internal {
         if (!_exists(tokenId)) revert TokenNotExists(tokenId);
         address owner = _ownerOf[tokenId];
-        if (
-            !_isApprovedOrOwner(msg.sender, tokenId) &&
-            msg.sender != _contractOwner
-        ) revert NotAuthorized();
+        if (!_isApprovedOrOwner(msg.sender, tokenId) && msg.sender != _contractOwner) revert NotAuthorized();
         _approvedOf[tokenId] = address(0);
         _balanceOf[owner] -= 1;
         _ownerOf[tokenId] = address(0);
@@ -304,22 +267,11 @@ contract CE721V2 is IERC721, IERC721Metadata, ERC165 {
     }
 
     // _requireOnReceived：to 为合约时校验 onERC721Received 返回值
-    function _requireOnReceived(
-        address operator,
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) internal {
+    function _requireOnReceived(address operator, address from, address to, uint256 tokenId, bytes memory data)
+        internal
+    {
         if (to.code.length > 0) {
-            try
-                IERC721TokenReceiver(to).onERC721Received(
-                    operator,
-                    from,
-                    tokenId,
-                    data
-                )
-            returns (bytes4 result) {
+            try IERC721TokenReceiver(to).onERC721Received(operator, from, tokenId, data) returns (bytes4 result) {
                 if (result != _ERC721_RECEIVED) revert InvalidReceiver();
             } catch {
                 revert InvalidReceiver();
@@ -341,7 +293,7 @@ contract CE721V2 is IERC721, IERC721Metadata, ERC165 {
         }
         bytes memory buffer = new bytes(digits);
         temp = value;
-        for (uint256 i = digits; i > 0; ) {
+        for (uint256 i = digits; i > 0;) {
             buffer[--i] = bytes1(uint8(48 + (temp % 10)));
             temp /= 10;
         }

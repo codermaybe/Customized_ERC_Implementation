@@ -8,11 +8,7 @@ interface IERC20 {
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
 
     /// @dev MUST trigger on any successful call to `approve`.
-    event Approval(
-        address indexed _owner,
-        address indexed _spender,
-        uint256 _value
-    );
+    event Approval(address indexed _owner, address indexed _spender, uint256 _value);
 
     /// @notice Returns the total token supply.
     function totalSupply() external view returns (uint256);
@@ -27,10 +23,7 @@ interface IERC20 {
     /// @param _to The receiver address
     /// @param _value The amount of tokens to transfer
     /// @return success True if the operation succeeded
-    function transfer(
-        address _to,
-        uint256 _value
-    ) external returns (bool success);
+    function transfer(address _to, uint256 _value) external returns (bool success);
 
     /// @notice Transfers `_value` amount of tokens from address `_from` to address `_to`.
     /// @dev Caller must have sufficient allowance from `_from`.
@@ -38,28 +31,18 @@ interface IERC20 {
     /// @param _to The receiver address
     /// @param _value The amount of tokens to transfer
     /// @return success True if the operation succeeded
-    function transferFrom(
-        address _from,
-        address _to,
-        uint256 _value
-    ) external returns (bool success);
+    function transferFrom(address _from, address _to, uint256 _value) external returns (bool success);
 
     /// @notice Allows `_spender` to withdraw from caller's account up to `_value`.
     /// @dev Repeated calls overwrite the current allowance with `_value`.
     /// @param _spender The address allowed to spend
     /// @param _value The allowance amount
     /// @return success True if the operation succeeded
-    function approve(
-        address _spender,
-        uint256 _value
-    ) external returns (bool success);
+    function approve(address _spender, uint256 _value) external returns (bool success);
 
     /// @notice Returns the amount which `_spender` is still allowed to withdraw from `_owner`.
     /// @param _owner The token owner
     /// @param _spender The approved spender
     /// @return remaining The remaining allowance
-    function allowance(
-        address _owner,
-        address _spender
-    ) external view returns (uint256 remaining);
+    function allowance(address _owner, address _spender) external view returns (uint256 remaining);
 }

@@ -23,22 +23,16 @@ contract CE721V3Test is Test {
         TransparentUpgradeableProxy proxy = new TransparentUpgradeableProxy(
             address(implementation),
             owner,
-            abi.encodeCall(
-                CE721V3.initialize,
-                ("CE721V3", "CE721V3", "ipfs://collection/")
-            )
+            abi.encodeCall(CE721V3.initialize, ("CE721V3", "CE721V3", "ipfs://collection/"))
         );
         token = CE721V3(address(proxy));
 
         CE721V3_OpenZeppelin referenceImplementation = new CE721V3_OpenZeppelin();
         TransparentUpgradeableProxy referenceProxy = new TransparentUpgradeableProxy(
-                address(referenceImplementation),
-                owner,
-                abi.encodeCall(
-                    CE721V3_OpenZeppelin.initialize,
-                    ("CE721V3_OpenZeppelin", "CE721V3_OpenZeppelin", owner)
-                )
-            );
+            address(referenceImplementation),
+            owner,
+            abi.encodeCall(CE721V3_OpenZeppelin.initialize, ("CE721V3_OpenZeppelin", "CE721V3_OpenZeppelin", owner))
+        );
         referenceToken = CE721V3_OpenZeppelin(address(referenceProxy));
 
         vm.stopPrank();
@@ -79,9 +73,7 @@ contract CE721V3Test is Test {
 
         vm.prank(bob);
         token.burn(7);
-        vm.expectRevert(
-            abi.encodeWithSelector(CE721V3.TokenNotExists.selector, 7)
-        );
+        vm.expectRevert(abi.encodeWithSelector(CE721V3.TokenNotExists.selector, 7));
         token.ownerOf(7);
     }
 

@@ -6,12 +6,7 @@ import {IERC721Errors} from "@openzeppelin/contracts/interfaces/draft-IERC6093.s
 import {CE721V2_OpenZeppelin} from "contracts/standards/erc721/src/v2/CE721V2_OpenZeppelin.sol";
 
 contract MockReceiver {
-    function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes memory
-    ) external pure returns (bytes4) {
+    function onERC721Received(address, address, uint256, bytes memory) external pure returns (bytes4) {
         return bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
     }
 }
@@ -34,9 +29,7 @@ contract CE721V2_OpenZeppelin_Test is Test {
     }
 
     function test_balanceOf_zero_address_reverts() public {
-        vm.expectRevert(
-            abi.encodeWithSelector(IERC721Errors.ERC721InvalidOwner.selector, address(0))
-        );
+        vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721InvalidOwner.selector, address(0)));
         nft.balanceOf(address(0));
     }
 
@@ -79,9 +72,7 @@ contract CE721V2_OpenZeppelin_Test is Test {
 
     function test_safeMint_bad_receiver_reverts() public {
         Dummy bad = new Dummy();
-        vm.expectRevert(
-            abi.encodeWithSelector(IERC721Errors.ERC721InvalidReceiver.selector, address(bad))
-        );
+        vm.expectRevert(abi.encodeWithSelector(IERC721Errors.ERC721InvalidReceiver.selector, address(bad)));
         nft.safeMint(address(bad), 12);
     }
 

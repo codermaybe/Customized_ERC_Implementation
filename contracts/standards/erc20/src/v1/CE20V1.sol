@@ -20,18 +20,9 @@ contract CE20V1 {
     mapping(address => uint256) private _balances;
     mapping(address => mapping(address => uint256)) _allowances;
     event Transfer(address indexed _from, address indexed _to, uint256 _value);
-    event Approval(
-        address indexed _owner,
-        address indexed _spender,
-        uint256 _value
-    );
+    event Approval(address indexed _owner, address indexed _spender, uint256 _value);
 
-    constructor(
-        string memory name,
-        string memory symbol,
-        uint8 decimals,
-        uint256 totalSupply
-    ) {
+    constructor(string memory name, string memory symbol, uint8 decimals, uint256 totalSupply) {
         _contractOwner = msg.sender;
         _name = name;
         _symbol = symbol;
@@ -82,7 +73,7 @@ contract CE20V1 {
 
     /*
     transfer
-    Transfers _value amount of tokens to address _to, and MUST fire the Transfer event. 
+    Transfers _value amount of tokens to address _to, and MUST fire the Transfer event.
     The function SHOULD throw if the message caller's account balance does not have enough tokens to spend.
     Note Transfers of 0 values MUST be treated as normal transfers and fire the Transfer event. */
 
@@ -99,20 +90,13 @@ contract CE20V1 {
     /*
     transferFrom
     Transfers _value amount of tokens from address _from to address _to, and MUST fire the Transfer event.
-    The transferFrom method is used for a withdraw workflow, allowing contracts to transfer tokens on your behalf. 
-    This can be used for example to allow a contract to transfer tokens on your behalf and/or to charge fees in sub-currencies. 
+    The transferFrom method is used for a withdraw workflow, allowing contracts to transfer tokens on your behalf.
+    This can be used for example to allow a contract to transfer tokens on your behalf and/or to charge fees in sub-currencies.
     The function SHOULD throw unless the _from account has deliberately authorized the sender of the message via some mechanism.
     Note Transfers of 0 values MUST be treated as normal transfers and fire the Transfer event. */
-    function transferFrom(
-        address _from,
-        address _to,
-        uint256 _value
-    ) public returns (bool success) {
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
         require(_to != address(0), unicode"不可向0地址转账");
-        require(
-            _allowances[_from][msg.sender] >= _value,
-            unicode"授权额度不足"
-        );
+        require(_allowances[_from][msg.sender] >= _value, unicode"授权额度不足");
         require(_balances[_from] >= _value, unicode"转账账户额度不足");
         require(_balances[_to] + _value > _balances[_to], unicode"余额溢出");
         _allowances[_from][msg.sender] -= _value;
@@ -124,19 +108,20 @@ contract CE20V1 {
 
     /*
     approve
-    Allows _spender to withdraw from your account multiple times, up to the _value amount. 
+    Allows _spender to withdraw from your account multiple times, up to the _value amount.
     If this function is called again it overwrites the current allowance with _value.
-    NOTE: To prevent attack vectors like the one described here and discussed here, clients SHOULD make sure to create user interfaces in such a way that they set the allowance first to 0 before setting it to another value for the same spender. 
+    NOTE: To prevent attack vectors like the one described here and discussed here, clients SHOULD make sure to create user interfaces in such a way that they set the allowance first to 0 before setting it to another value for the same spender.
     THOUGH The contract itself shouldn't enforce it, to allow backwards compatibility with contracts deployed before */
     function approve(
         //此版本未解决重入攻击,安全版本可检查CE20V1_OpenZeppelin.sol
         address _spender,
         uint256 _value
-    ) public returns (bool success) {
+    )
+        public
+        returns (bool success)
+    {
         require(
-            _allowances[msg.sender][_spender] + _value >
-                _allowances[msg.sender][_spender],
-            unicode"授权额度溢出"
+            _allowances[msg.sender][_spender] + _value > _allowances[msg.sender][_spender], unicode"授权额度溢出"
         );
         require(_spender != address(0), unicode"转账地址为0");
 
@@ -148,10 +133,7 @@ contract CE20V1 {
     /*
     allowance
     Returns the amount which _spender is still allowed to withdraw from _owner.*/
-    function allowance(
-        address _owner,
-        address _spender
-    ) public view returns (uint256 remaining) {
+    function allowance(address _owner, address _spender) public view returns (uint256 remaining) {
         return _allowances[_owner][_spender];
     }
 
@@ -159,10 +141,7 @@ contract CE20V1 {
     event Mint(address _to, uint256 _value);
 
     function mint(address _to, uint256 _value) public {
-        require(
-            msg.sender == _contractOwner,
-            unicode"非合约拥有者无法派生代币"
-        );
+        require(msg.sender == _contractOwner, unicode"非合约拥有者无法派生代币");
         require(_balances[_to] + _value > _balances[_to], unicode"余额溢出");
         require(_totalSupply + _value > _totalSupply, unicode"总代币量将溢出");
         _balances[_to] += _value;
@@ -175,14 +154,8 @@ contract CE20V1 {
     event Burn(address _from, uint256 _value);
 
     function burn(address _from, uint256 _value) public {
-        require(
-            msg.sender == _contractOwner,
-            unicode"非合约拥有者无法派生代币"
-        );
-        require(
-            _balances[_from] >= _value,
-            unicode"检查燃烧的代币数量，超过用户余额"
-        );
+        require(msg.sender == _contractOwner, unicode"非合约拥有者无法派生代币");
+        require(_balances[_from] >= _value, unicode"检查燃烧的代币数量，超过用户余额");
         _balances[_from] -= _value;
         _totalSupply -= _value;
         emit Burn(_from, _value);

@@ -34,9 +34,7 @@ interface IERC4626 {
     ///      MUST round down towards 0.
     /// @param assets The amount of assets to convert.
     /// @return shares The amount of shares that would be exchanged.
-    function convertToShares(
-        uint256 assets
-    ) external view returns (uint256 shares);
+    function convertToShares(uint256 assets) external view returns (uint256 shares);
 
     /// @notice The amount of assets that the Vault would exchange for the amount of shares provided,
     ///         in an ideal scenario where all the conditions are met.
@@ -47,9 +45,7 @@ interface IERC4626 {
     ///      MUST round down towards 0.
     /// @param shares The amount of shares to convert.
     /// @return assets The amount of assets that would be exchanged.
-    function convertToAssets(
-        uint256 shares
-    ) external view returns (uint256 assets);
+    function convertToAssets(uint256 shares) external view returns (uint256 assets);
 
     /// @notice Maximum amount of the underlying asset that can be deposited into the Vault
     ///         for the receiver, through a deposit call.
@@ -60,9 +56,7 @@ interface IERC4626 {
     ///      MUST NOT revert.
     /// @param receiver The address receiving the shares.
     /// @return maxAssets The maximum amount of assets that can be deposited.
-    function maxDeposit(
-        address receiver
-    ) external view returns (uint256 maxAssets);
+    function maxDeposit(address receiver) external view returns (uint256 maxAssets);
 
     /// @notice Allows an on-chain or off-chain user to simulate the effects of their deposit
     ///         at the current block, given current on-chain conditions.
@@ -73,9 +67,7 @@ interface IERC4626 {
     ///      MUST NOT revert due to vault specific user/global limits.
     /// @param assets The amount of assets to preview deposit for.
     /// @return shares The amount of shares that would be minted.
-    function previewDeposit(
-        uint256 assets
-    ) external view returns (uint256 shares);
+    function previewDeposit(uint256 assets) external view returns (uint256 shares);
 
     /// @notice Mints shares Vault shares to receiver by depositing exactly assets of underlying tokens.
     /// @dev MUST emit the Deposit event.
@@ -84,10 +76,7 @@ interface IERC4626 {
     /// @param assets The amount of assets to deposit.
     /// @param receiver The address receiving the shares.
     /// @return shares The amount of shares minted.
-    function deposit(
-        uint256 assets,
-        address receiver
-    ) external returns (uint256 shares);
+    function deposit(uint256 assets, address receiver) external returns (uint256 shares);
 
     /// @notice Maximum amount of shares that can be minted from the Vault for the receiver,
     ///         through a mint call.
@@ -98,9 +87,7 @@ interface IERC4626 {
     ///      MUST NOT revert.
     /// @param receiver The address receiving the shares.
     /// @return maxShares The maximum amount of shares that can be minted.
-    function maxMint(
-        address receiver
-    ) external view returns (uint256 maxShares);
+    function maxMint(address receiver) external view returns (uint256 maxShares);
 
     /// @notice Allows an on-chain or off-chain user to simulate the effects of their mint
     ///         at the current block, given current on-chain conditions.
@@ -120,10 +107,7 @@ interface IERC4626 {
     /// @param shares The amount of shares to mint.
     /// @param receiver The address receiving the shares.
     /// @return assets The amount of assets deposited.
-    function mint(
-        uint256 shares,
-        address receiver
-    ) external returns (uint256 assets);
+    function mint(uint256 shares, address receiver) external returns (uint256 assets);
 
     /// @notice Maximum amount of the underlying asset that can be withdrawn from the owner balance
     ///         in the Vault, through a withdraw call.
@@ -133,9 +117,7 @@ interface IERC4626 {
     ///      MUST NOT revert.
     /// @param owner The address owning the shares.
     /// @return maxAssets The maximum amount of assets that can be withdrawn.
-    function maxWithdraw(
-        address owner
-    ) external view returns (uint256 maxAssets);
+    function maxWithdraw(address owner) external view returns (uint256 maxAssets);
 
     /// @notice Allows an on-chain or off-chain user to simulate the effects of their withdrawal
     ///         at the current block, given current on-chain conditions.
@@ -146,9 +128,7 @@ interface IERC4626 {
     ///      MUST NOT revert due to vault specific user/global limits.
     /// @param assets The amount of assets to preview withdrawal for.
     /// @return shares The amount of shares that would be burned.
-    function previewWithdraw(
-        uint256 assets
-    ) external view returns (uint256 shares);
+    function previewWithdraw(uint256 assets) external view returns (uint256 shares);
 
     /// @notice Burns shares from owner and sends exactly assets of underlying tokens to receiver.
     /// @dev MUST emit the Withdraw event.
@@ -160,11 +140,7 @@ interface IERC4626 {
     /// @param receiver The address receiving the assets.
     /// @param owner The address owning the shares being burned.
     /// @return shares The amount of shares burned.
-    function withdraw(
-        uint256 assets,
-        address receiver,
-        address owner
-    ) external returns (uint256 shares);
+    function withdraw(uint256 assets, address receiver, address owner) external returns (uint256 shares);
 
     /// @notice Maximum amount of Vault shares that can be redeemed from the owner balance in the Vault,
     ///         through a redeem call.
@@ -185,9 +161,7 @@ interface IERC4626 {
     ///      MUST NOT revert due to vault specific user/global limits.
     /// @param shares The amount of shares to preview redemption for.
     /// @return assets The amount of assets that would be withdrawn.
-    function previewRedeem(
-        uint256 shares
-    ) external view returns (uint256 assets);
+    function previewRedeem(uint256 shares) external view returns (uint256 assets);
 
     /// @notice Burns exactly shares from owner and sends assets of underlying tokens to receiver.
     /// @dev MUST emit the Withdraw event.
@@ -199,11 +173,7 @@ interface IERC4626 {
     /// @param receiver The address receiving the assets.
     /// @param owner The address owning the shares being burned.
     /// @return assets The amount of assets withdrawn.
-    function redeem(
-        uint256 shares,
-        address receiver,
-        address owner
-    ) external returns (uint256 assets);
+    function redeem(uint256 shares, address receiver, address owner) external returns (uint256 assets);
 
     // =============================================================
     //                            Events
@@ -215,12 +185,7 @@ interface IERC4626 {
     /// @param owner The address receiving the shares.
     /// @param assets The amount of assets deposited.
     /// @param shares The amount of shares minted.
-    event Deposit(
-        address indexed sender,
-        address indexed owner,
-        uint256 assets,
-        uint256 shares
-    );
+    event Deposit(address indexed sender, address indexed owner, uint256 assets, uint256 shares);
 
     /// @notice sender has exchanged shares, owned by owner, for assets, and transferred those assets to receiver.
     /// @dev MUST be emitted when shares are withdrawn from the Vault in EIP-4626.redeem or EIP-4626.withdraw methods.
@@ -230,10 +195,6 @@ interface IERC4626 {
     /// @param assets The amount of assets withdrawn.
     /// @param shares The amount of shares burned.
     event Withdraw(
-        address indexed sender,
-        address indexed receiver,
-        address indexed owner,
-        uint256 assets,
-        uint256 shares
+        address indexed sender, address indexed receiver, address indexed owner, uint256 assets, uint256 shares
     );
 }

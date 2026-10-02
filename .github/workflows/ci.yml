@@ -16,6 +16,9 @@ jobs:
       - name: Init submodules
         run: git submodule update --init
 
+      - name: Format check
+        run: forge fmt --check
+
       - name: Build
         run: forge build --sizes
 

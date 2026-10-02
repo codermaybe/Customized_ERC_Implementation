@@ -26,11 +26,7 @@ contract CE1155V1_OpenZeppelin is ERC1155, ERC1155Burnable, Ownable {
      * @param name_  项目名称（例如 "THE OASIS Items"）
      * @param symbol_ 项目标识（例如 "OASIS1155"）
      */
-    constructor(
-        string memory uri_,
-        string memory name_,
-        string memory symbol_
-    ) ERC1155(uri_) Ownable(msg.sender) {
+    constructor(string memory uri_, string memory name_, string memory symbol_) ERC1155(uri_) Ownable(msg.sender) {
         name = name_;
         symbol = symbol_;
     }
@@ -42,12 +38,7 @@ contract CE1155V1_OpenZeppelin is ERC1155, ERC1155Burnable, Ownable {
      * @param amount  铸造数量
      * @param data    附加数据，将在接收者的 onERC1155Received 中原样传递
      */
-    function mint(
-        address to,
-        uint256 id,
-        uint256 amount,
-        bytes memory data
-    ) external onlyOwner {
+    function mint(address to, uint256 id, uint256 amount, bytes memory data) external onlyOwner {
         _mint(to, id, amount, data);
     }
 
@@ -58,12 +49,10 @@ contract CE1155V1_OpenZeppelin is ERC1155, ERC1155Burnable, Ownable {
      * @param amounts 对应数量列表（长度需与 ids 一致）
      * @param data    附加数据，将在接收者的 onERC1155BatchReceived 中原样传递
      */
-    function mintBatch(
-        address to,
-        uint256[] memory ids,
-        uint256[] memory amounts,
-        bytes memory data
-    ) external onlyOwner {
+    function mintBatch(address to, uint256[] memory ids, uint256[] memory amounts, bytes memory data)
+        external
+        onlyOwner
+    {
         _mintBatch(to, ids, amounts, data);
     }
 }

@@ -20,8 +20,7 @@ contract CE721V1 is IERC721 {
     ///@dev _ownerOf 记录对应token的拥有者
     ///@dev  _approvedOf 记录代币单一授权列表
     ///@dev  _ApprovalForAll 记录某个地址授权的操作员列表
-
-    mapping(address => uint) _balanceOf;
+    mapping(address => uint256) _balanceOf;
 
     mapping(uint256 => address) _ownerOf;
 
@@ -58,19 +57,11 @@ contract CE721V1 is IERC721 {
     ///@notice 0.8版本solidity不支持重载构造器，此处使用此函数实现
     ///@dev 此函数仅能被合约拥有者调用，且initialOwners长度必须与initialTokenNumber长度一致
 
-    function initializeWithTokens(
-        uint256 firstTokenNumber,
-        uint256 lastTokenNumber,
-        address[] memory initialOwners
-    ) public {
-        require(
-            _contractOwner == msg.sender,
-            "only contract owner can initialize"
-        );
-        require(
-            firstTokenNumber <= lastTokenNumber,
-            unicode"初始化数据失败,检查TokenNumber范围"
-        );
+    function initializeWithTokens(uint256 firstTokenNumber, uint256 lastTokenNumber, address[] memory initialOwners)
+        public
+    {
+        require(_contractOwner == msg.sender, "only contract owner can initialize");
+        require(firstTokenNumber <= lastTokenNumber, unicode"初始化数据失败,检查TokenNumber范围");
         require(
             initialOwners.length == (lastTokenNumber - firstTokenNumber + 1),
             unicode"初始化数据参数数量不匹配"
@@ -107,10 +98,7 @@ contract CE721V1 is IERC721 {
     }
 
     function burn(uint256 _tokenId) public {
-        require(
-            msg.sender == _ownerOf[_tokenId] || msg.sender == _contractOwner,
-            unicode"无权销毁"
-        );
+        require(msg.sender == _ownerOf[_tokenId] || msg.sender == _contractOwner, unicode"无权销毁");
         _burn(_tokenId);
     }
 
@@ -167,16 +155,10 @@ contract CE721V1 is IERC721 {
     /// @param _to 新的所有者。
     /// @param _tokenId 要转移的 NFT。
     /// @param data 发送到 `_to` 的调用中的附加数据，没有指定的格式。
-    function safeTransferFrom(
-        address _from,
-        address _to,
-        uint256 _tokenId,
-        bytes memory data
-    ) external payable {
+    function safeTransferFrom(address _from, address _to, uint256 _tokenId, bytes memory data) external payable {
         require(
-            msg.sender == _ownerOf[_tokenId] ||
-                msg.sender == _approvedOf[_tokenId] ||
-                _ApprovalForAll[_from][msg.sender],
+            msg.sender == _ownerOf[_tokenId] || msg.sender == _approvedOf[_tokenId]
+                || _ApprovalForAll[_from][msg.sender],
             unicode"无操作权限,请检查"
         );
         require(_from == _ownerOf[_tokenId], unicode"from对象非此NFT拥有者");
@@ -184,26 +166,13 @@ contract CE721V1 is IERC721 {
         require(_ownerOf[_tokenId] != address(0), unicode"不是有效的NFT");
         if (address(_to).code.length > 0) {
             //按ERC721要求在_to上调用接口对应的 onERC721Received函数
-            bytes4 retval = IERC721TokenReceiver(_to).onERC721Received(
-                msg.sender,
-                _from,
-                _tokenId,
-                data
-            );
+            bytes4 retval = IERC721TokenReceiver(_to).onERC721Received(msg.sender, _from, _tokenId, data);
             require(
-                retval ==
-                    bytes4(
-                        keccak256(
-                            "onERC721Received(address,address,uint256,bytes)"
-                        )
-                    ),
+                retval == bytes4(keccak256("onERC721Received(address,address,uint256,bytes)")),
                 unicode"此合约地址未实现ERC721TokenReceiver"
             );
         }
-        if (
-            data.length == 4 &&
-            bytes4(data) == bytes4(keccak256("codermaybe.github.io"))
-        ) {
+        if (data.length == 4 && bytes4(data) == bytes4(keccak256("codermaybe.github.io"))) {
             //do something
         }
         //变更拥有者
@@ -220,11 +189,7 @@ contract CE721V1 is IERC721 {
     /// @param _from NFT 的当前所有者。
     /// @param _to 新的所有者。
     /// @param _tokenId 要转移的 NFT。
-    function safeTransferFrom(
-        address _from,
-        address _to,
-        uint256 _tokenId
-    ) external payable {
+    function safeTransferFrom(address _from, address _to, uint256 _tokenId) external payable {
         this.safeTransferFrom(_from, _to, _tokenId, "");
     }
 
@@ -237,16 +202,11 @@ contract CE721V1 is IERC721 {
     /// @param _from NFT 的当前所有者。
     /// @param _to 新的所有者。
     /// @param _tokenId 要转移的 NFT。
-    function transferFrom(
-        address _from,
-        address _to,
-        uint256 _tokenId
-    ) external payable {
+    function transferFrom(address _from, address _to, uint256 _tokenId) external payable {
         //判断是否能接收nft
         require(
-            msg.sender == _ownerOf[_tokenId] ||
-                msg.sender == _approvedOf[_tokenId] ||
-                _ApprovalForAll[_from][msg.sender],
+            msg.sender == _ownerOf[_tokenId] || msg.sender == _approvedOf[_tokenId]
+                || _ApprovalForAll[_from][msg.sender],
             unicode"无操作权限,请检查"
         );
         require(_from == _ownerOf[_tokenId], unicode"from对象非此NFT拥有者");
@@ -268,8 +228,7 @@ contract CE721V1 is IERC721 {
     /// @param _tokenId 要批准的 NFT。
     function approve(address _approved, uint256 _tokenId) external payable {
         require(
-            msg.sender == _ownerOf[_tokenId] ||
-                _ApprovalForAll[_ownerOf[_tokenId]][msg.sender],
+            msg.sender == _ownerOf[_tokenId] || _ApprovalForAll[_ownerOf[_tokenId]][msg.sender],
             unicode"无权限操作NFT批准"
         );
         _approvedOf[_tokenId] = _approved;
@@ -299,10 +258,7 @@ contract CE721V1 is IERC721 {
     /// @param _owner 拥有 NFT 的地址。
     /// @param _operator 代表所有者执行操作的地址。
     /// @return 如果 `_operator` 是 `_owner` 的批准操作员，则为 true；否则为 false。
-    function isApprovedForAll(
-        address _owner,
-        address _operator
-    ) external view returns (bool) {
+    function isApprovedForAll(address _owner, address _operator) external view returns (bool) {
         return _ApprovalForAll[_owner][_operator];
     }
 }

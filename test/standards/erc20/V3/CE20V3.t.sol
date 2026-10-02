@@ -29,29 +29,23 @@ contract CE20V3Test is Test {
     address internal spender = address(0xD00D);
     address internal newOwner = address(0xABCD);
 
-    bytes32 internal constant ERC1967_ADMIN_SLOT =
-        0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103;
+    bytes32 internal constant ERC1967_ADMIN_SLOT = 0xb53127684a568b3173ae13b9f8a6016e243e63b6e8ee1178d6a717850b5d6103;
 
     function setUp() public {
         vm.startPrank(owner);
 
         implementation = new CE20V3();
         TransparentUpgradeableProxy proxy = new TransparentUpgradeableProxy(
-            address(implementation),
-            owner,
-            abi.encodeCall(CE20V3.initialize, ("CE20V3", "CE20V3"))
+            address(implementation), owner, abi.encodeCall(CE20V3.initialize, ("CE20V3", "CE20V3"))
         );
         token = CE20V3(address(proxy));
 
         CE20V3_OpenZeppelin referenceImplementation = new CE20V3_OpenZeppelin();
         TransparentUpgradeableProxy referenceProxy = new TransparentUpgradeableProxy(
-                address(referenceImplementation),
-                owner,
-                abi.encodeCall(
-                    CE20V3_OpenZeppelin.initialize,
-                    ("CE20V3_OpenZeppelin", "CE20V3_OpenZeppelin", owner)
-                )
-            );
+            address(referenceImplementation),
+            owner,
+            abi.encodeCall(CE20V3_OpenZeppelin.initialize, ("CE20V3_OpenZeppelin", "CE20V3_OpenZeppelin", owner))
+        );
         referenceToken = CE20V3_OpenZeppelin(address(referenceProxy));
 
         vm.stopPrank();
@@ -156,27 +150,14 @@ contract CE20V3Test is Test {
     }
 
     function test_permitSetsAllowanceAndConsumesNonce() public {
-        (address permitOwner, uint256 privateKey) = makeAddrAndKey(
-            "permitOwner"
-        );
+        (address permitOwner, uint256 privateKey) = makeAddrAndKey("permitOwner");
         uint256 value = 42;
         uint256 deadline = block.timestamp + 1 days;
-        bytes32 permitTypehash = keccak256(
-            "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
-        );
-        bytes32 structHash = keccak256(
-            abi.encode(
-                permitTypehash,
-                permitOwner,
-                spender,
-                value,
-                token.nonces(permitOwner),
-                deadline
-            )
-        );
-        bytes32 digest = keccak256(
-            abi.encodePacked("\x19\x01", token.DOMAIN_SEPARATOR(), structHash)
-        );
+        bytes32 permitTypehash =
+            keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
+        bytes32 structHash =
+            keccak256(abi.encode(permitTypehash, permitOwner, spender, value, token.nonces(permitOwner), deadline));
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", token.DOMAIN_SEPARATOR(), structHash));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(privateKey, digest);
 
         token.permit(permitOwner, spender, value, deadline, v, r, s);
@@ -190,18 +171,8 @@ contract CE20V3Test is Test {
     }
 
     function test_permitRejectsInvalidVWithoutConsumingNonce() public {
-        vm.expectRevert(
-            abi.encodeWithSelector(CE20V3.InvalidSignatureV.selector, 1)
-        );
-        token.permit(
-            alice,
-            spender,
-            1,
-            block.timestamp,
-            1,
-            bytes32(0),
-            bytes32(0)
-        );
+        vm.expectRevert(abi.encodeWithSelector(CE20V3.InvalidSignatureV.selector, 1));
+        token.permit(alice, spender, 1, block.timestamp, 1, bytes32(0), bytes32(0));
         assertEq(token.nonces(alice), 0);
     }
 
@@ -235,16 +206,11 @@ contract CE20V3Test is Test {
         token.approve(spender, 25);
 
         CE20V3UpgradeMock nextImplementation = new CE20V3UpgradeMock();
-        address proxyAdminAddress = address(
-            uint160(uint256(vm.load(address(token), ERC1967_ADMIN_SLOT)))
-        );
+        address proxyAdminAddress = address(uint160(uint256(vm.load(address(token), ERC1967_ADMIN_SLOT))));
 
         vm.prank(owner);
-        ProxyAdmin(proxyAdminAddress).upgradeAndCall(
-            ITransparentUpgradeableProxy(address(token)),
-            address(nextImplementation),
-            bytes("")
-        );
+        ProxyAdmin(proxyAdminAddress)
+            .upgradeAndCall(ITransparentUpgradeableProxy(address(token)), address(nextImplementation), bytes(""));
 
         CE20V3UpgradeMock upgraded = CE20V3UpgradeMock(address(token));
         assertEq(upgraded.upgradeMarker(), 4);

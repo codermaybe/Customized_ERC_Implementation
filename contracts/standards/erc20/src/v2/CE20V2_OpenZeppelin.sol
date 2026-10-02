@@ -20,23 +20,19 @@ contract CE20V2_OpenZeppelin is ERC20, Ownable {
     bytes32 internal _DOMAIN_SEPARATOR;
     uint256 internal _INITIAL_CHAIN_ID;
     bytes32 internal constant PERMIT_TYPEHASH =
-        keccak256(
-            "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
-        );
+        keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
     bytes32 internal constant _EIP712_DOMAIN_TYPEHASH =
-        keccak256(
-            "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-        );
+        keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
 
     // ---- 自定义错误（与 CE20V2 对齐命名） ----
     error PermitExpired(uint256 deadline);
     error InvalidSignature();
     error ZeroAddress();
-    constructor(
-        string memory name_,
-        string memory symbol_,
-        address initialOwner
-    ) ERC20(name_, symbol_) Ownable(initialOwner) {
+
+    constructor(string memory name_, string memory symbol_, address initialOwner)
+        ERC20(name_, symbol_)
+        Ownable(initialOwner)
+    {
         _INITIAL_CHAIN_ID = block.chainid;
         _DOMAIN_SEPARATOR = keccak256(
             abi.encode(
@@ -69,30 +65,13 @@ contract CE20V2_OpenZeppelin is ERC20, Ownable {
     }
 
     /// @notice EIP-2612: permit 签名授权（版本号为 "2"）
-    function permit(
-        address owner,
-        address spender,
-        uint256 value,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external {
+    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
+        external
+    {
         if (deadline < block.timestamp) revert PermitExpired(deadline);
 
-        bytes32 structHash = keccak256(
-            abi.encode(
-                PERMIT_TYPEHASH,
-                owner,
-                spender,
-                value,
-                _nonces[owner],
-                deadline
-            )
-        );
-        bytes32 digest = keccak256(
-            abi.encodePacked("\x19\x01", _domainSeparator(), structHash)
-        );
+        bytes32 structHash = keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, _nonces[owner], deadline));
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", _domainSeparator(), structHash));
         address signer = ecrecover(digest, v, r, s);
         if (signer == address(0)) revert ZeroAddress();
         if (signer != owner) revert InvalidSignature();

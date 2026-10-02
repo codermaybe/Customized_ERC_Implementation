@@ -14,13 +14,7 @@ import {
  * @notice 自实现的可升级 IERC20：initializer、两步所有权、mint/burn 与 EIP-2612 permit。
  * @dev V3 是后续代理升级的 storage layout 基线；新增状态变量必须从 __gap 中消耗槽位。
  */
-contract CE20V3 is
-    IERC20,
-    IERC20Metadata,
-    CE20AllowanceExtensions,
-    CE20MintBurn,
-    CE20Permit
-{
+contract CE20V3 is IERC20, IERC20Metadata, CE20AllowanceExtensions, CE20MintBurn, CE20Permit {
     // ---------------------- Storage layout ----------------------
     address public _contractOwner;
     address public _pendingOwner;
@@ -46,22 +40,14 @@ contract CE20V3 is
     uint8 internal constant _DECIMALS = 18;
 
     bytes32 internal constant _PERMIT_TYPEHASH =
-        keccak256(
-            "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
-        );
+        keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
     bytes32 internal constant _EIP712_DOMAIN_TYPEHASH =
-        keccak256(
-            "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-        );
-    uint256 internal constant _SECP256K1N_HALF =
-        0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0;
+        keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+    uint256 internal constant _SECP256K1N_HALF = 0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0;
 
     // ---------------------- Events ----------------------
     event OwnerChanged(address indexed oldOwner, address indexed newOwner);
-    event OwnershipTransferRequested(
-        address indexed oldOwner,
-        address indexed pendingOwner
-    );
+    event OwnershipTransferRequested(address indexed oldOwner, address indexed pendingOwner);
     event OwnershipTransferCancelled(address indexed owner);
 
     // ---------------------- Errors ----------------------
@@ -101,10 +87,7 @@ contract CE20V3 is
         _initializedVersion = type(uint64).max;
     }
 
-    function initialize(
-        string memory name_,
-        string memory symbol_
-    ) external initializer {
+    function initialize(string memory name_, string memory symbol_) external initializer {
         _contractOwner = msg.sender;
         _name = name_;
         _symbol = symbol_;
@@ -150,36 +133,23 @@ contract CE20V3 is
         return _balances[owner];
     }
 
-    function transfer(
-        address to,
-        uint256 value
-    ) external override returns (bool) {
+    function transfer(address to, uint256 value) external override returns (bool) {
         _transfer(msg.sender, to, value);
         return true;
     }
 
-    function transferFrom(
-        address from,
-        address to,
-        uint256 value
-    ) external override returns (bool) {
+    function transferFrom(address from, address to, uint256 value) external override returns (bool) {
         _spendAllowance(from, msg.sender, value);
         _transfer(from, to, value);
         return true;
     }
 
-    function approve(
-        address spender,
-        uint256 value
-    ) external override returns (bool) {
+    function approve(address spender, uint256 value) external override returns (bool) {
         _approve(msg.sender, spender, value);
         return true;
     }
 
-    function allowance(
-        address owner,
-        address spender
-    ) external view override returns (uint256) {
+    function allowance(address owner, address spender) external view override returns (uint256) {
         return _allowances[owner][spender];
     }
 
@@ -195,10 +165,7 @@ contract CE20V3 is
         return _DECIMALS;
     }
 
-    function increaseAllowance(
-        address spender,
-        uint256 addedValue
-    ) external override returns (bool) {
+    function increaseAllowance(address spender, uint256 addedValue) external override returns (bool) {
         uint256 currentAllowance = _allowances[msg.sender][spender];
         if (type(uint256).max - currentAllowance < addedValue) {
             revert AllowanceOverflowed(currentAllowance, addedValue);
@@ -208,10 +175,7 @@ contract CE20V3 is
         return true;
     }
 
-    function decreaseAllowance(
-        address spender,
-        uint256 subtractedValue
-    ) external override returns (bool) {
+    function decreaseAllowance(address spender, uint256 subtractedValue) external override returns (bool) {
         uint256 currentAllowance = _allowances[msg.sender][spender];
         if (currentAllowance < subtractedValue) {
             revert AllowanceExceeded(currentAllowance, subtractedValue);
@@ -223,10 +187,7 @@ contract CE20V3 is
         return true;
     }
 
-    function mint(
-        address to,
-        uint256 value
-    ) external override onlyOwner returns (bool) {
+    function mint(address to, uint256 value) external override onlyOwner returns (bool) {
         _mint(to, value);
         return true;
     }
@@ -236,37 +197,25 @@ contract CE20V3 is
         return true;
     }
 
-    function burnFrom(
-        address from,
-        uint256 value
-    ) external override returns (bool) {
+    function burnFrom(address from, uint256 value) external override returns (bool) {
         _spendAllowance(from, msg.sender, value);
         _burn(from, value);
         return true;
     }
 
     // ---------------------- EIP-2612 ----------------------
-    function permit(
-        address owner,
-        address spender,
-        uint256 value,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external override {
+    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
+        external
+        override
+    {
         if (owner == address(0)) revert ZeroAddress();
         if (block.timestamp > deadline) revert PermitExpired(deadline);
         if (v != 27 && v != 28) revert InvalidSignatureV(v);
         if (uint256(s) > _SECP256K1N_HALF) revert InvalidSignatureS(s);
 
         uint256 nonce = _nonces[owner];
-        bytes32 structHash = keccak256(
-            abi.encode(_PERMIT_TYPEHASH, owner, spender, value, nonce, deadline)
-        );
-        bytes32 digest = keccak256(
-            abi.encodePacked("\x19\x01", _domainSeparator(), structHash)
-        );
+        bytes32 structHash = keccak256(abi.encode(_PERMIT_TYPEHASH, owner, spender, value, nonce, deadline));
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", _domainSeparator(), structHash));
         address signer = ecrecover(digest, v, r, s);
         if (signer == address(0) || signer != owner) {
             revert InvalidSignature();
@@ -290,16 +239,15 @@ contract CE20V3 is
     }
 
     function _buildDomainSeparator() internal view returns (bytes32) {
-        return
-            keccak256(
-                abi.encode(
-                    _EIP712_DOMAIN_TYPEHASH,
-                    keccak256(bytes(_name)),
-                    keccak256(bytes(_VERSION)),
-                    block.chainid,
-                    address(this)
-                )
-            );
+        return keccak256(
+            abi.encode(
+                _EIP712_DOMAIN_TYPEHASH,
+                keccak256(bytes(_name)),
+                keccak256(bytes(_VERSION)),
+                block.chainid,
+                address(this)
+            )
+        );
     }
 
     // ---------------------- Internal IERC20 core ----------------------
@@ -327,11 +275,7 @@ contract CE20V3 is
         emit Approval(owner, spender, value);
     }
 
-    function _spendAllowance(
-        address owner,
-        address spender,
-        uint256 amount
-    ) internal {
+    function _spendAllowance(address owner, address spender, uint256 amount) internal {
         uint256 currentAllowance = _allowances[owner][spender];
         if (currentAllowance == type(uint256).max) return;
         if (currentAllowance < amount) {
@@ -373,11 +317,7 @@ contract CE20V3 is
         emit Transfer(from, address(0), amount);
     }
 
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual {
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual {
         from;
         to;
         amount;

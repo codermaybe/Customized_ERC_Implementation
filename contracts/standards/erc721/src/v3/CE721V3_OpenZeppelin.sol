@@ -4,8 +4,12 @@ pragma solidity ^0.8.28;
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import {Ownable2StepUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Ownable2StepUpgradeable.sol";
 import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
-import {ERC721URIStorageUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
-import {ERC721BurnableUpgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
+import {
+    ERC721URIStorageUpgradeable
+} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721URIStorageUpgradeable.sol";
+import {
+    ERC721BurnableUpgradeable
+} from "@openzeppelin/contracts-upgradeable/token/ERC721/extensions/ERC721BurnableUpgradeable.sol";
 
 /**
  * @title CE721V3_OpenZeppelin
@@ -26,11 +30,7 @@ contract CE721V3_OpenZeppelin is
         _disableInitializers();
     }
 
-    function initialize(
-        string memory name_,
-        string memory symbol_,
-        address initialOwner
-    ) public initializer {
+    function initialize(string memory name_, string memory symbol_, address initialOwner) public initializer {
         __ERC721_init(name_, symbol_);
         __ERC721URIStorage_init();
         __ERC721Burnable_init();
@@ -50,11 +50,7 @@ contract CE721V3_OpenZeppelin is
         _safeMint(to, tokenId);
     }
 
-    function safeMint(
-        address to,
-        uint256 tokenId,
-        string memory uri
-    ) external onlyOwner {
+    function safeMint(address to, uint256 tokenId, string memory uri) external onlyOwner {
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
     }
@@ -65,9 +61,7 @@ contract CE721V3_OpenZeppelin is
         _nextTokenId = tokenId + 1;
     }
 
-    function tokenURI(
-        uint256 tokenId
-    )
+    function tokenURI(uint256 tokenId)
         public
         view
         override(ERC721Upgradeable, ERC721URIStorageUpgradeable)
@@ -76,9 +70,7 @@ contract CE721V3_OpenZeppelin is
         return super.tokenURI(tokenId);
     }
 
-    function supportsInterface(
-        bytes4 interfaceId
-    )
+    function supportsInterface(bytes4 interfaceId)
         public
         view
         override(ERC721Upgradeable, ERC721URIStorageUpgradeable)

@@ -4,7 +4,8 @@ pragma solidity ^0.8.28;
 /// @dev See https://eips.ethereum.org/EIPS/eip-721
 ///  Note: the ERC-165 identifier for this interface is 0x5b5e139f.
 interface IERC721Metadata {
-    /* is ERC721 */ /// @notice A descriptive name for a collection of NFTs in this contract
+    /* is ERC721 */
+    /// @notice A descriptive name for a collection of NFTs in this contract
     function name() external view returns (string memory _name);
 
     /// @notice An abbreviated name for NFTs in this contract

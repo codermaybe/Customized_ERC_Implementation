@@ -43,13 +43,10 @@ contract CE20V2 {
     bytes32 internal _DOMAIN_SEPARATOR;
     uint256 internal _INITIAL_CHAIN_ID;
     bytes32 internal constant PERMIT_TYPEHASH =
-        keccak256(
-            "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
-        );
+        keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
     bytes32 internal constant _EIP712_DOMAIN_TYPEHASH =
-        keccak256(
-            "EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)"
-        );
+        keccak256("EIP712Domain(string name,string version,uint256 chainId,address verifyingContract)");
+
     constructor(string memory name_, string memory symbol_) {
         _owner = msg.sender;
         _name = name_;
@@ -72,11 +69,7 @@ contract CE20V2 {
     event Transfer(address indexed from, address indexed to, uint256 value);
 
     /// @notice 当 `approve` 更改或确认授权额度时触发。
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 value
-    );
+    event Approval(address indexed owner, address indexed spender, uint256 value);
 
     /**
      * 事件触发矩阵（约定）：
@@ -131,29 +124,20 @@ contract CE20V2 {
     /// @notice 转账（0 数量视为正常转账并触发事件）。
     /// @dev 实现时：仅委托 `_transfer(msg.sender, to, value)` 并返回 true；
     ///      零地址/余额检查、事件与 hook 调用均在 `_transfer` 内部统一处理。
-    function transfer(
-        address to,
-        uint256 value
-    ) external virtual returns (bool) {
+    function transfer(address to, uint256 value) external virtual returns (bool) {
         _transfer(msg.sender, to, value);
         return true;
     }
 
     /// @notice 查询授权剩余额度。
-    function allowance(
-        address owner,
-        address spender
-    ) external view virtual returns (uint256) {
+    function allowance(address owner, address spender) external view virtual returns (uint256) {
         return _allowances[owner][spender];
     }
 
     /// @notice 设定授权额度（重复调用覆盖旧值）。
     /// @dev 实现时：仅委托 `_approve(msg.sender, spender, value)` 并返回 true；
     ///      事件在 `_approve` 内触发，外部函数不直接 emit。
-    function approve(
-        address spender,
-        uint256 value
-    ) external virtual returns (bool) {
+    function approve(address spender, uint256 value) external virtual returns (bool) {
         _approve(msg.sender, spender, value);
         return true;
     }
@@ -161,11 +145,7 @@ contract CE20V2 {
     /// @notice 经授权从 `from` 转账给 `to`。
     /// @dev 实现时：先 `_spendAllowance(from, msg.sender, value)`（非无限授权时可能通过 `_approve` 触发一次 Approval），
     ///      再 `_transfer(from, to, value)`；外部函数不直接 emit 事件。
-    function transferFrom(
-        address from,
-        address to,
-        uint256 value
-    ) external virtual returns (bool) {
+    function transferFrom(address from, address to, uint256 value) external virtual returns (bool) {
         _spendAllowance(from, msg.sender, value);
         _transfer(from, to, value);
         return true;
@@ -175,16 +155,13 @@ contract CE20V2 {
     /// @notice 增加授权额度（避免覆盖带来的竞态风险）。
     /// @dev 实现时：`new = current + addedValue`，通过 `_approve` 落库；
     ///      事件由 `_approve` 触发，外部函数不直接 emit。可选：为对称性加入溢出预检查（AllowanceOverflowed）。
-    function increaseAllowance(
-        address spender,
-        uint256 addedValue
-    ) external virtual returns (bool) {
-        if (type(uint256).max - _allowances[msg.sender][spender] < addedValue)
+    function increaseAllowance(address spender, uint256 addedValue) external virtual returns (bool) {
+        if (
+            type(uint256).max - _allowances[msg.sender][spender] < addedValue
             //一定程度上此处校验为伪需求
-            revert AllowanceOverflowed(
-                _allowances[msg.sender][spender],
-                addedValue
-            );
+        ) {
+            revert AllowanceOverflowed(_allowances[msg.sender][spender], addedValue);
+        }
         uint256 newValue = _allowances[msg.sender][spender] + addedValue;
         _approve(msg.sender, spender, newValue);
         return true;
@@ -193,15 +170,10 @@ contract CE20V2 {
     /// @notice 减少授权额度（不少于减少值）。
     /// @dev 实现时：检查 `current >= subtractedValue`，`new = current - subtractedValue`，通过 `_approve` 落库；
     ///      事件由 `_approve` 触发，外部函数不直接 emit。
-    function decreaseAllowance(
-        address spender,
-        uint256 subtractedValue
-    ) external virtual returns (bool) {
-        if (_allowances[msg.sender][spender] < subtractedValue)
-            revert AllowanceExceeded(
-                _allowances[msg.sender][spender],
-                subtractedValue
-            );
+    function decreaseAllowance(address spender, uint256 subtractedValue) external virtual returns (bool) {
+        if (_allowances[msg.sender][spender] < subtractedValue) {
+            revert AllowanceExceeded(_allowances[msg.sender][spender], subtractedValue);
+        }
         uint256 newValue = _allowances[msg.sender][spender] - subtractedValue;
         _approve(msg.sender, spender, newValue);
         return true;
@@ -209,10 +181,7 @@ contract CE20V2 {
 
     /// @notice 铸造代币，仅限约定权限方（owner/minter）。
     /// @dev 实现时：仅委托 `_mint(to, value)` 并返回 true；事件由 `_mint` 触发。
-    function mint(
-        address to,
-        uint256 value
-    ) public virtual onlyOwner returns (bool) {
+    function mint(address to, uint256 value) public virtual onlyOwner returns (bool) {
         _mint(to, value);
         return true;
     }
@@ -227,10 +196,7 @@ contract CE20V2 {
     /// @notice 从 `from` 销毁代币（持有人或经授权者）。
     /// @dev 实现时：先 `_spendAllowance(from, msg.sender, value)`，再 `_burn(from, value)`；
     ///      事件由 `_burn` 触发，外部函数不直接 emit。
-    function burnFrom(
-        address from,
-        uint256 value
-    ) public virtual returns (bool) {
+    function burnFrom(address from, uint256 value) public virtual returns (bool) {
         _spendAllowance(from, msg.sender, value);
         _burn(from, value);
         return true;
@@ -241,30 +207,14 @@ contract CE20V2 {
     /// @dev 实现时：`require(block.timestamp <= deadline)`；构造 EIP-712 `digest` 并用 `ecrecover` 校验；
     ///      `nonces[owner]++` 后调用 `_approve(owner, spender, value)`；事件由 `_approve` 触发；
     ///      域分隔符需考虑链 ID 变化（可复用 `DOMAIN_SEPARATOR` 或在链变更时重建）。
-    function permit(
-        address owner,
-        address spender,
-        uint256 value,
-        uint256 deadline,
-        uint8 v,
-        bytes32 r,
-        bytes32 s
-    ) external virtual {
+    function permit(address owner, address spender, uint256 value, uint256 deadline, uint8 v, bytes32 r, bytes32 s)
+        external
+        virtual
+    {
         if (owner == address(0)) revert ZeroAddress();
         if (deadline < block.timestamp) revert PermitExpired(deadline);
-        bytes32 structHash = keccak256(
-            abi.encode(
-                PERMIT_TYPEHASH,
-                owner,
-                spender,
-                value,
-                _nonces[owner],
-                deadline
-            )
-        );
-        bytes32 digest = keccak256(
-            abi.encodePacked("\x19\x01", _domainSeparator(), structHash)
-        );
+        bytes32 structHash = keccak256(abi.encode(PERMIT_TYPEHASH, owner, spender, value, _nonces[owner], deadline));
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", _domainSeparator(), structHash));
         address signer = ecrecover(digest, v, r, s);
         if (signer == address(0)) revert ZeroAddress();
         if (signer != owner) revert InvalidSignature();
@@ -317,15 +267,12 @@ contract CE20V2 {
     // ---------------------- 内部核心（仅签名，供外部函数复用） ----------------------
     /// @dev 内部转账：要求 `from != address(0)` 且 `to != address(0)`；检查 `from` 余额；
     ///      在状态写入前调用 `_beforeTokenTransfer(from,to,amount)`；更新余额并 emit Transfer(from,to,amount)。
-    function _transfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual {
+    function _transfer(address from, address to, uint256 amount) internal virtual {
         if (from == address(0)) revert ZeroAddress();
         if (to == address(0)) revert ZeroAddress();
-        if (_balances[from] < amount)
+        if (_balances[from] < amount) {
             revert InsufficientBalance(_balances[from], amount);
+        }
 
         _beforeTokenTransfer(from, to, amount);
         _balances[from] -= amount;
@@ -334,11 +281,7 @@ contract CE20V2 {
     }
 
     /// @dev 内部授权：要求 `owner != address(0)`；写 `_allowances[owner][spender] = value` 并 emit Approval(owner,spender,value)。
-    function _approve(
-        address owner,
-        address spender,
-        uint256 value
-    ) internal virtual {
+    function _approve(address owner, address spender, uint256 value) internal virtual {
         if (owner == address(0)) revert ZeroAddress();
         if (spender == address(0)) revert ZeroAddress();
         _allowances[owner][spender] = value;
@@ -348,14 +291,11 @@ contract CE20V2 {
     /// @dev 内部消费授权：
     ///      - 若 `allowed == type(uint256).max` 视为无限授权：不扣减、不触发事件；
     ///      - 否则检查 `allowed >= amount`，扣减并通过 `_approve(owner, spender, newAllowed)` 触发一次 Approval。
-    function _spendAllowance(
-        address owner,
-        address spender,
-        uint256 amount
-    ) internal virtual {
+    function _spendAllowance(address owner, address spender, uint256 amount) internal virtual {
         if (_allowances[owner][spender] == type(uint256).max) return;
-        if (_allowances[owner][spender] < amount)
+        if (_allowances[owner][spender] < amount) {
             revert AllowanceExceeded(_allowances[owner][spender], amount);
+        }
         _approve(owner, spender, _allowances[owner][spender] - amount);
     }
 
@@ -363,8 +303,9 @@ contract CE20V2 {
     ///      更新 `_totalSupply` 与余额并 emit Transfer(address(0),to,amount)。
     function _mint(address to, uint256 amount) internal virtual {
         if (to == address(0)) revert ZeroAddress();
-        if (type(uint256).max - _totalSupply < amount)
+        if (type(uint256).max - _totalSupply < amount) {
             revert TotalSupplyOverflowed();
+        }
         _beforeTokenTransfer(address(0), to, amount);
         _totalSupply += amount;
         _balances[to] += amount;
@@ -375,8 +316,9 @@ contract CE20V2 {
     ///      更新 `_totalSupply` 与余额并 emit Transfer(from,address(0),amount)。
     function _burn(address from, uint256 amount) internal virtual {
         if (from == address(0)) revert ZeroAddress();
-        if (_balances[from] < amount)
+        if (_balances[from] < amount) {
             revert InsufficientBalance(_balances[from], amount);
+        }
         _beforeTokenTransfer(from, address(0), amount);
         _totalSupply -= amount;
         _balances[from] -= amount;
@@ -384,11 +326,7 @@ contract CE20V2 {
     }
 
     /// @dev 预留钩子，转账/铸造/销毁前调用，默认空实现由子类覆盖。
-    function _beforeTokenTransfer(
-        address from,
-        address to,
-        uint256 amount
-    ) internal virtual {
+    function _beforeTokenTransfer(address from, address to, uint256 amount) internal virtual {
         //暂时空实现
     }
 }

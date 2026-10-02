@@ -1,6 +1,7 @@
 pragma solidity ^0.8.28;
 
 import {IERC3525} from "./IERC3525.sol";
+
 /**
  * @title ERC-3525 Semi-Fungible Token Standard, optional extension for approval of slot level
  * @dev Interfaces for any contract that wants to support approval of slot level, which allows an
@@ -17,12 +18,7 @@ interface IERC3525SlotApprovable is IERC3525 {
      * @param _operator The operator being approved or disapproved
      * @param _approved Identify if `_operator` is approved or disapproved
      */
-    event ApprovalForSlot(
-        address indexed _owner,
-        uint256 indexed _slot,
-        address indexed _operator,
-        bool _approved
-    );
+    event ApprovalForSlot(address indexed _owner, uint256 indexed _slot, address indexed _operator, bool _approved);
 
     /**
      * @notice Approve or disapprove an operator to manage all of `_owner`'s tokens with the
@@ -35,12 +31,7 @@ interface IERC3525SlotApprovable is IERC3525 {
      * @param _operator The address for whom to query approval
      * @param _approved Identify if `_operator` would be approved or disapproved
      */
-    function setApprovalForSlot(
-        address _owner,
-        uint256 _slot,
-        address _operator,
-        bool _approved
-    ) external payable;
+    function setApprovalForSlot(address _owner, uint256 _slot, address _operator, bool _approved) external payable;
 
     /**
      * @notice Query if `_operator` is authorized to manage all of `_owner`'s tokens with the
@@ -51,9 +42,5 @@ interface IERC3525SlotApprovable is IERC3525 {
      * @return True if `_operator` is authorized to manage all of `_owner`'s tokens with `_slot`,
      *  false otherwise.
      */
-    function isApprovedForSlot(
-        address _owner,
-        uint256 _slot,
-        address _operator
-    ) external view returns (bool);
+    function isApprovedForSlot(address _owner, uint256 _slot, address _operator) external view returns (bool);
 }

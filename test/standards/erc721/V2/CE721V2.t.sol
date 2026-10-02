@@ -6,11 +6,18 @@ import {CE721V2} from "contracts/standards/erc721/src/v2/CE721V2.sol";
 
 contract GoodReceiver {
     function onERC721Received(
-        address /*operator*/,
-        address /*from*/,
-        uint256 /*tokenId*/,
+        address,
+        /*operator*/
+        address,
+        /*from*/
+        uint256,
+        /*tokenId*/
         bytes memory /*data*/
-    ) external pure returns (bytes4) {
+    )
+        external
+        pure
+        returns (bytes4)
+    {
         return bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
     }
 }

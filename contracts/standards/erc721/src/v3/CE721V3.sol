@@ -35,10 +35,7 @@ contract CE721V3 is IERC721, IERC721Metadata, ERC165 {
 
     // ---------------------- Events ----------------------
     event OwnerChanged(address indexed oldOwner, address indexed newOwner);
-    event OwnershipTransferRequested(
-        address indexed oldOwner,
-        address indexed pendingOwner
-    );
+    event OwnershipTransferRequested(address indexed oldOwner, address indexed pendingOwner);
     event OwnershipTransferCancelled(address indexed owner);
     event BaseUriChanged(string oldURI, string newURI);
 
@@ -78,11 +75,7 @@ contract CE721V3 is IERC721, IERC721Metadata, ERC165 {
         _initializedVersion = type(uint64).max;
     }
 
-    function initialize(
-        string memory name_,
-        string memory symbol_,
-        string memory baseURI_
-    ) external initializer {
+    function initialize(string memory name_, string memory symbol_, string memory baseURI_) external initializer {
         _contractOwner = msg.sender;
         _name = name_;
         _symbol = symbol_;
@@ -94,13 +87,8 @@ contract CE721V3 is IERC721, IERC721Metadata, ERC165 {
     }
 
     // ---------------------- ERC165 / metadata ----------------------
-    function supportsInterface(
-        bytes4 interfaceID
-    ) external pure override returns (bool) {
-        return
-            interfaceID == 0x01ffc9a7 ||
-            interfaceID == 0x80ac58cd ||
-            interfaceID == 0x5b5e139f;
+    function supportsInterface(bytes4 interfaceID) external pure override returns (bool) {
+        return interfaceID == 0x01ffc9a7 || interfaceID == 0x80ac58cd || interfaceID == 0x5b5e139f;
     }
 
     function name() external view override returns (string memory) {
@@ -111,9 +99,7 @@ contract CE721V3 is IERC721, IERC721Metadata, ERC165 {
         return _symbol;
     }
 
-    function tokenURI(
-        uint256 tokenId
-    ) external view override returns (string memory) {
+    function tokenURI(uint256 tokenId) external view override returns (string memory) {
         if (!_exists(tokenId)) revert TokenNotExists(tokenId);
         return string(abi.encodePacked(_baseURI, _toString(tokenId)));
     }
@@ -160,59 +146,35 @@ contract CE721V3 is IERC721, IERC721Metadata, ERC165 {
         return owner;
     }
 
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) public payable override {
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes memory data) public payable override {
         _transfer(from, to, tokenId);
         _requireOnReceived(msg.sender, from, to, tokenId, data);
     }
 
-    function safeTransferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) external payable override {
+    function safeTransferFrom(address from, address to, uint256 tokenId) external payable override {
         safeTransferFrom(from, to, tokenId, bytes(""));
     }
 
-    function transferFrom(
-        address from,
-        address to,
-        uint256 tokenId
-    ) external payable override {
+    function transferFrom(address from, address to, uint256 tokenId) external payable override {
         _transfer(from, to, tokenId);
     }
 
-    function approve(
-        address approved,
-        uint256 tokenId
-    ) external payable override {
+    function approve(address approved, uint256 tokenId) external payable override {
         _approve(approved, tokenId, _ownerOf[tokenId]);
     }
 
-    function setApprovalForAll(
-        address operator,
-        bool approved
-    ) external override {
+    function setApprovalForAll(address operator, bool approved) external override {
         if (operator == msg.sender) revert InvalidOperator();
         _approvalForAll[msg.sender][operator] = approved;
         emit ApprovalForAll(msg.sender, operator, approved);
     }
 
-    function getApproved(
-        uint256 tokenId
-    ) external view override returns (address) {
+    function getApproved(uint256 tokenId) external view override returns (address) {
         if (!_exists(tokenId)) revert TokenNotExists(tokenId);
         return _approvedOf[tokenId];
     }
 
-    function isApprovedForAll(
-        address owner,
-        address operator
-    ) external view override returns (bool) {
+    function isApprovedForAll(address owner, address operator) external view override returns (bool) {
         return _approvalForAll[owner][operator];
     }
 
@@ -221,11 +183,7 @@ contract CE721V3 is IERC721, IERC721Metadata, ERC165 {
         _mint(to, tokenId);
     }
 
-    function safeMint(
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) external onlyOwner {
+    function safeMint(address to, uint256 tokenId, bytes memory data) external onlyOwner {
         _mint(to, tokenId);
         _requireOnReceived(msg.sender, address(0), to, tokenId, data);
     }
@@ -250,22 +208,17 @@ contract CE721V3 is IERC721, IERC721Metadata, ERC165 {
         return _ownerOf[tokenId] != address(0);
     }
 
-    function _isApprovedOrOwner(
-        address spender,
-        uint256 tokenId
-    ) internal view returns (bool) {
+    function _isApprovedOrOwner(address spender, uint256 tokenId) internal view returns (bool) {
         address tokenOwner = _ownerOf[tokenId];
         if (tokenOwner == address(0)) revert TokenNotExists(tokenId);
-        return
-            spender == tokenOwner ||
-            spender == _approvedOf[tokenId] ||
-            _approvalForAll[tokenOwner][spender];
+        return spender == tokenOwner || spender == _approvedOf[tokenId] || _approvalForAll[tokenOwner][spender];
     }
 
     function _approve(address to, uint256 tokenId, address owner) internal {
         if (!_exists(tokenId)) revert TokenNotExists(tokenId);
-        if (msg.sender != owner && !_approvalForAll[owner][msg.sender])
+        if (msg.sender != owner && !_approvalForAll[owner][msg.sender]) {
             revert NotAuthorized();
+        }
         if (to == owner) revert ApproveToCurrentOwner();
 
         _approvedOf[tokenId] = to;
@@ -301,10 +254,7 @@ contract CE721V3 is IERC721, IERC721Metadata, ERC165 {
     function _burn(uint256 tokenId) internal {
         address owner = _ownerOf[tokenId];
         if (owner == address(0)) revert TokenNotExists(tokenId);
-        if (
-            !_isApprovedOrOwner(msg.sender, tokenId) &&
-            msg.sender != _contractOwner
-        ) revert NotAuthorized();
+        if (!_isApprovedOrOwner(msg.sender, tokenId) && msg.sender != _contractOwner) revert NotAuthorized();
 
         delete _approvedOf[tokenId];
         unchecked {
@@ -314,23 +264,12 @@ contract CE721V3 is IERC721, IERC721Metadata, ERC165 {
         emit Transfer(owner, address(0), tokenId);
     }
 
-    function _requireOnReceived(
-        address operator,
-        address from,
-        address to,
-        uint256 tokenId,
-        bytes memory data
-    ) internal {
+    function _requireOnReceived(address operator, address from, address to, uint256 tokenId, bytes memory data)
+        internal
+    {
         if (to.code.length == 0) return;
 
-        try
-            IERC721TokenReceiver(to).onERC721Received(
-                operator,
-                from,
-                tokenId,
-                data
-            )
-        returns (bytes4 result) {
+        try IERC721TokenReceiver(to).onERC721Received(operator, from, tokenId, data) returns (bytes4 result) {
             if (result != _ERC721_RECEIVED) revert InvalidReceiver();
         } catch {
             revert InvalidReceiver();

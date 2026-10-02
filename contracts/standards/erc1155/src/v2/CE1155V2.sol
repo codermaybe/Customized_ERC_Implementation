@@ -41,10 +41,7 @@ contract CE1155V2 is IERC1155 {
     address public _pendingOwner;
 
     event OwnerChanged(address indexed oldOwner, address indexed newOwner);
-    event OwnershipTransferRequested(
-        address indexed oldOwner,
-        address indexed pendingOwner
-    );
+    event OwnershipTransferRequested(address indexed oldOwner, address indexed pendingOwner);
     event OwnershipTransferCancelled(address indexed owner);
 
     modifier onlyOwner() {
@@ -76,19 +73,9 @@ contract CE1155V2 is IERC1155 {
     mapping(uint256 => ItemType) internal _itemTypes;
     mapping(uint256 => address) internal _nftOwnerOf;
 
-    event ItemTypeCreated(
-        uint256 indexed id,
-        string name,
-        string uri,
-        bool isNFT
-    );
+    event ItemTypeCreated(uint256 indexed id, string name, string uri, bool isNFT);
 
-    event ItemTypeUpdated(
-        uint256 indexed id,
-        string name,
-        string uri,
-        bool isNFT
-    );
+    event ItemTypeUpdated(uint256 indexed id, string name, string uri, bool isNFT);
 
     // ------------------------------------------------------------------------
     // Balances & Approvals
@@ -96,15 +83,9 @@ contract CE1155V2 is IERC1155 {
 
     mapping(address => mapping(uint256 => uint256)) internal _balances;
     mapping(address => mapping(address => bool)) internal _approvalForAll;
-    mapping(address => mapping(address => mapping(uint256 => uint256)))
-        internal _singleAllowance;
+    mapping(address => mapping(address => mapping(uint256 => uint256))) internal _singleAllowance;
 
-    event SingleApproval(
-        address indexed owner,
-        address indexed operator,
-        uint256 indexed id,
-        uint256 amount
-    );
+    event SingleApproval(address indexed owner, address indexed operator, uint256 indexed id, uint256 amount);
 
     // ------------------------------------------------------------------------
     // IERC1155 Receiver 魔术值常量
@@ -117,11 +98,7 @@ contract CE1155V2 is IERC1155 {
     // Constructor
     // ------------------------------------------------------------------------
 
-    constructor(
-        string memory name_,
-        string memory symbol_,
-        string memory baseURI_
-    ) {
+    constructor(string memory name_, string memory symbol_, string memory baseURI_) {
         _contractOwner = msg.sender;
         _name = name_;
         _symbol = symbol_;
@@ -132,18 +109,17 @@ contract CE1155V2 is IERC1155 {
     // IERC1155 标准接口
     // ------------------------------------------------------------------------
 
-    function safeTransferFrom(
-        address _from,
-        address _to,
-        uint256 _id,
-        uint256 _value,
-        bytes calldata _data
-    ) external virtual override {
+    function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data)
+        external
+        virtual
+        override
+    {
         if (_to == address(0)) revert ZeroAddress();
         if (!_itemTypes[_id].exists) revert ItemTypeNotExists(_id);
         if (_from == address(0)) revert ZeroAddress();
-        if (!_isApprovedOrOwnerForSingle(msg.sender, _from, _id, _value))
+        if (!_isApprovedOrOwnerForSingle(msg.sender, _from, _id, _value)) {
             revert Unauthorized();
+        }
 
         _updateSingle(msg.sender, _from, _to, _id, _value, _data);
     }
@@ -159,8 +135,7 @@ contract CE1155V2 is IERC1155 {
         if (_from == address(0)) revert ZeroAddress();
         if (_ids.length != _values.length) revert LengthMismatch();
 
-        bool byOwnerOrForAll = (msg.sender == _from) ||
-            _approvalForAll[_from][msg.sender];
+        bool byOwnerOrForAll = (msg.sender == _from) || _approvalForAll[_from][msg.sender];
 
         for (uint256 i = 0; i < _ids.length; i++) {
             uint256 id = _ids[i];
@@ -168,12 +143,14 @@ contract CE1155V2 is IERC1155 {
             if (!_itemTypes[id].exists) revert ItemTypeNotExists(id);
 
             if (!byOwnerOrForAll) {
-                if (_singleAllowance[_from][msg.sender][id] < value)
+                if (_singleAllowance[_from][msg.sender][id] < value) {
                     revert Unauthorized();
+                }
             }
 
-            if (_balances[_from][id] < value)
+            if (_balances[_from][id] < value) {
                 revert InsufficientBalance(_balances[_from][id], value);
+            }
 
             if (_itemTypes[id].isNFT) {
                 if (value != 1) revert NFTAmountInvalid();
@@ -184,17 +161,17 @@ contract CE1155V2 is IERC1155 {
         _updateBatch(msg.sender, _from, _to, _ids, _values, _data);
     }
 
-    function balanceOf(
-        address _owner,
-        uint256 _id
-    ) external view virtual override returns (uint256) {
+    function balanceOf(address _owner, uint256 _id) external view virtual override returns (uint256) {
         return _balances[_owner][_id];
     }
 
-    function balanceOfBatch(
-        address[] calldata _owners,
-        uint256[] calldata _ids
-    ) external view virtual override returns (uint256[] memory) {
+    function balanceOfBatch(address[] calldata _owners, uint256[] calldata _ids)
+        external
+        view
+        virtual
+        override
+        returns (uint256[] memory)
+    {
         if (_owners.length != _ids.length) revert LengthMismatch();
         uint256[] memory result = new uint256[](_owners.length);
         for (uint256 i = 0; i < _owners.length; i++) {
@@ -203,18 +180,12 @@ contract CE1155V2 is IERC1155 {
         return result;
     }
 
-    function setApprovalForAll(
-        address _operator,
-        bool _approved
-    ) external virtual override {
+    function setApprovalForAll(address _operator, bool _approved) external virtual override {
         _approvalForAll[msg.sender][_operator] = _approved;
         emit ApprovalForAll(msg.sender, _operator, _approved);
     }
 
-    function isApprovedForAll(
-        address _owner,
-        address _operator
-    ) external view virtual override returns (bool) {
+    function isApprovedForAll(address _owner, address _operator) external view virtual override returns (bool) {
         return _approvalForAll[_owner][_operator];
     }
 
@@ -247,29 +218,22 @@ contract CE1155V2 is IERC1155 {
     // ItemType 管理
     // ------------------------------------------------------------------------
 
-    function createItemType(
-        uint256 id,
-        string calldata name_,
-        string calldata uri_,
-        bool isNFT
-    ) external virtual onlyOwner {
+    function createItemType(uint256 id, string calldata name_, string calldata uri_, bool isNFT)
+        external
+        virtual
+        onlyOwner
+    {
         if (_itemTypes[id].exists) revert ItemTypeAlreadyExists(id);
-        _itemTypes[id] = ItemType({
-            name: name_,
-            uri: uri_,
-            isNFT: isNFT,
-            exists: true
-        });
+        _itemTypes[id] = ItemType({name: name_, uri: uri_, isNFT: isNFT, exists: true});
         emit ItemTypeCreated(id, name_, uri_, isNFT);
         emit URI(uri(id), id);
     }
 
-    function updateItemType(
-        uint256 id,
-        string calldata name_,
-        string calldata uri_,
-        bool isNFT
-    ) external virtual onlyOwner {
+    function updateItemType(uint256 id, string calldata name_, string calldata uri_, bool isNFT)
+        external
+        virtual
+        onlyOwner
+    {
         if (!_itemTypes[id].exists) revert ItemTypeNotExists(id);
 
         if (_itemTypes[id].isNFT != isNFT) {
@@ -315,12 +279,7 @@ contract CE1155V2 is IERC1155 {
     // Mint / Burn
     // ------------------------------------------------------------------------
 
-    function mint(
-        address to,
-        uint256 id,
-        uint256 amount,
-        bytes calldata data
-    ) external virtual onlyOwner {
+    function mint(address to, uint256 id, uint256 amount, bytes calldata data) external virtual onlyOwner {
         if (to == address(0)) revert ZeroAddress();
         if (!_itemTypes[id].exists) revert ItemTypeNotExists(id);
 
@@ -332,12 +291,11 @@ contract CE1155V2 is IERC1155 {
         _updateSingle(msg.sender, address(0), to, id, amount, data);
     }
 
-    function mintBatch(
-        address to,
-        uint256[] calldata ids,
-        uint256[] calldata amounts,
-        bytes calldata data
-    ) external virtual onlyOwner {
+    function mintBatch(address to, uint256[] calldata ids, uint256[] calldata amounts, bytes calldata data)
+        external
+        virtual
+        onlyOwner
+    {
         if (to == address(0)) revert ZeroAddress();
         if (ids.length != amounts.length) revert LengthMismatch();
 
@@ -357,32 +315,30 @@ contract CE1155V2 is IERC1155 {
     function burn(address from, uint256 id, uint256 amount) external virtual {
         if (from == address(0)) revert ZeroAddress();
         if (!_itemTypes[id].exists) revert ItemTypeNotExists(id);
-        if (!_isApprovedOrOwnerForSingle(msg.sender, from, id, amount))
+        if (!_isApprovedOrOwnerForSingle(msg.sender, from, id, amount)) {
             revert Unauthorized();
+        }
 
         _updateSingle(msg.sender, from, address(0), id, amount, "");
     }
 
-    function burnBatch(
-        address from,
-        uint256[] calldata ids,
-        uint256[] calldata amounts
-    ) external virtual {
+    function burnBatch(address from, uint256[] calldata ids, uint256[] calldata amounts) external virtual {
         if (from == address(0)) revert ZeroAddress();
         if (ids.length != amounts.length) revert LengthMismatch();
 
-        bool byOwnerOrForAll = (msg.sender == from) ||
-            _approvalForAll[from][msg.sender];
+        bool byOwnerOrForAll = (msg.sender == from) || _approvalForAll[from][msg.sender];
 
         for (uint256 i = 0; i < ids.length; i++) {
             uint256 id = ids[i];
             uint256 amount = amounts[i];
             if (!_itemTypes[id].exists) revert ItemTypeNotExists(id);
-            if (_balances[from][id] < amount)
+            if (_balances[from][id] < amount) {
                 revert InsufficientBalance(_balances[from][id], amount);
+            }
             if (!byOwnerOrForAll) {
-                if (_singleAllowance[from][msg.sender][id] < amount)
+                if (_singleAllowance[from][msg.sender][id] < amount) {
                     revert Unauthorized();
+                }
             }
             if (_itemTypes[id].isNFT) {
                 if (amount != 1) revert NFTAmountInvalid();
@@ -397,15 +353,12 @@ contract CE1155V2 is IERC1155 {
     // 单物品授权
     // ------------------------------------------------------------------------
 
-    function setApprovalForSingle(
-        address operator,
-        uint256 id,
-        uint256 amount
-    ) external virtual {
+    function setApprovalForSingle(address operator, uint256 id, uint256 amount) external virtual {
         if (operator == address(0)) revert InvalidOperator();
         if (!_itemTypes[id].exists) revert ItemTypeNotExists(id);
-        if (_balances[msg.sender][id] < amount)
+        if (_balances[msg.sender][id] < amount) {
             revert InsufficientBalance(_balances[msg.sender][id], amount);
+        }
 
         _singleAllowance[msg.sender][operator][id] = amount;
         emit SingleApproval(msg.sender, operator, id, amount);
@@ -415,29 +368,19 @@ contract CE1155V2 is IERC1155 {
     // Internal core
     // ------------------------------------------------------------------------
 
-    function _updateSingle(
-        address operator,
-        address from,
-        address to,
-        uint256 id,
-        uint256 value,
-        bytes memory data
-    ) internal virtual {
+    function _updateSingle(address operator, address from, address to, uint256 id, uint256 value, bytes memory data)
+        internal
+        virtual
+    {
         if (from == address(0)) {
             _balances[to][id] += value;
         } else if (to == address(0)) {
             _balances[from][id] -= value;
         } else {
-            bool byOwnerOrForAll = (operator == from) ||
-                _approvalForAll[from][operator];
+            bool byOwnerOrForAll = (operator == from) || _approvalForAll[from][operator];
             if (!byOwnerOrForAll) {
                 _singleAllowance[from][operator][id] -= value;
-                emit SingleApproval(
-                    from,
-                    operator,
-                    id,
-                    _singleAllowance[from][operator][id]
-                );
+                emit SingleApproval(from, operator, id, _singleAllowance[from][operator][id]);
             }
 
             _balances[from][id] -= value;
@@ -488,8 +431,7 @@ contract CE1155V2 is IERC1155 {
                 }
             }
         } else {
-            bool byOwnerOrForAll = (operator == from) ||
-                _approvalForAll[from][operator];
+            bool byOwnerOrForAll = (operator == from) || _approvalForAll[from][operator];
 
             for (uint256 i = 0; i < ids.length; i++) {
                 uint256 id = ids[i];
@@ -497,12 +439,7 @@ contract CE1155V2 is IERC1155 {
 
                 if (!byOwnerOrForAll) {
                     _singleAllowance[from][operator][id] -= value;
-                    emit SingleApproval(
-                        from,
-                        operator,
-                        id,
-                        _singleAllowance[from][operator][id]
-                    );
+                    emit SingleApproval(from, operator, id, _singleAllowance[from][operator][id]);
                 }
 
                 _balances[from][id] -= value;
@@ -521,12 +458,12 @@ contract CE1155V2 is IERC1155 {
         }
     }
 
-    function _isApprovedOrOwnerForSingle(
-        address spender,
-        address from,
-        uint256 id,
-        uint256 value
-    ) internal view virtual returns (bool) {
+    function _isApprovedOrOwnerForSingle(address spender, address from, uint256 id, uint256 value)
+        internal
+        view
+        virtual
+        returns (bool)
+    {
         if (spender == from) return true;
         if (_approvalForAll[from][spender]) return true;
         if (_singleAllowance[from][spender][id] >= value) return true;
@@ -542,15 +479,7 @@ contract CE1155V2 is IERC1155 {
         bytes memory data
     ) internal virtual {
         if (to.code.length > 0) {
-            try
-                IERC1155TokenReceiver(to).onERC1155Received(
-                    operator,
-                    from,
-                    id,
-                    value,
-                    data
-                )
-            returns (bytes4 result) {
+            try IERC1155TokenReceiver(to).onERC1155Received(operator, from, id, value, data) returns (bytes4 result) {
                 if (result != _ERC1155_ACCEPTED) revert InvalidReceiver();
             } catch {
                 revert InvalidReceiver();
@@ -567,17 +496,12 @@ contract CE1155V2 is IERC1155 {
         bytes memory data
     ) internal virtual {
         if (to.code.length > 0) {
-            try
-                IERC1155TokenReceiver(to).onERC1155BatchReceived(
-                    operator,
-                    from,
-                    ids,
-                    values,
-                    data
-                )
-            returns (bytes4 result) {
-                if (result != _ERC1155_BATCH_ACCEPTED)
+            try IERC1155TokenReceiver(to).onERC1155BatchReceived(operator, from, ids, values, data) returns (
+                bytes4 result
+            ) {
+                if (result != _ERC1155_BATCH_ACCEPTED) {
                     revert InvalidReceiver();
+                }
             } catch {
                 revert InvalidReceiver();
             }
@@ -599,7 +523,7 @@ contract CE1155V2 is IERC1155 {
 
         bytes memory buffer = new bytes(digits);
         temp = value;
-        for (uint256 i = digits; i > 0; ) {
+        for (uint256 i = digits; i > 0;) {
             buffer[--i] = bytes1(uint8(48 + (temp % 10)));
             temp /= 10;
         }

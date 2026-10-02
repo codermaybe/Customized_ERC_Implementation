@@ -9,16 +9,10 @@ import {CE20V2_OpenZeppelin} from "contracts/standards/erc20/src/v2/CE20V2_OpenZ
 contract CE20V2Test is Test {
     // 为事件断言声明与被测合约相同签名的事件
     event Transfer(address indexed from, address indexed to, uint256 value);
-    event Approval(
-        address indexed owner,
-        address indexed spender,
-        uint256 value
-    );
+    event Approval(address indexed owner, address indexed spender, uint256 value);
     // 常量与账户
     bytes32 constant PERMIT_TYPEHASH =
-        keccak256(
-            "Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)"
-        );
+        keccak256("Permit(address owner,address spender,uint256 value,uint256 nonce,uint256 deadline)");
 
     uint256 ownerPrivateKey = 0xA11CE; // 仅测试用私钥
     address accountOwner = vm.addr(ownerPrivateKey);
@@ -40,14 +34,8 @@ contract CE20V2Test is Test {
         string memory nameValue = tokenUnderTest.name();
         string memory symbolValue = tokenUnderTest.symbol();
 
-        require(
-            keccak256(bytes(nameValue)) == keccak256(bytes("CE20V2")),
-            "name mismatch"
-        );
-        require(
-            keccak256(bytes(symbolValue)) == keccak256(bytes("CE20V2")),
-            "symbol mismatch"
-        );
+        require(keccak256(bytes(nameValue)) == keccak256(bytes("CE20V2")), "name mismatch");
+        require(keccak256(bytes(symbolValue)) == keccak256(bytes("CE20V2")), "symbol mismatch");
 
         // 精度应为 18
         require(tokenUnderTest.decimals() == 18, "decimals mismatch");
@@ -112,36 +100,14 @@ contract CE20V2Test is Test {
         // 正确签名应提升 allowance 且递增 nonce
         address permitOwner = vm.addr(ownerPrivateKey);
         uint256 nonce = tokenUnderTest.nonces(permitOwner);
-        uint256 previousAllowance = tokenUnderTest.allowance(
-            permitOwner,
-            accountSpender
-        );
+        uint256 previousAllowance = tokenUnderTest.allowance(permitOwner, accountSpender);
         uint256 value = 1;
         uint256 deadline = block.timestamp + 100; //设置必定不超时
-        bytes32 structHash = keccak256(
-            abi.encode(
-                PERMIT_TYPEHASH,
-                permitOwner,
-                accountSpender,
-                value,
-                nonce,
-                deadline
-            )
-        );
+        bytes32 structHash = keccak256(abi.encode(PERMIT_TYPEHASH, permitOwner, accountSpender, value, nonce, deadline));
         bytes32 domain = tokenUnderTest.DOMAIN_SEPARATOR();
-        bytes32 digest = keccak256(
-            abi.encodePacked("\x19\x01", domain, structHash)
-        );
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domain, structHash));
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(ownerPrivateKey, digest);
-        tokenUnderTest.permit(
-            permitOwner,
-            accountSpender,
-            value,
-            deadline,
-            v,
-            r,
-            s
-        );
+        tokenUnderTest.permit(permitOwner, accountSpender, value, deadline, v, r, s);
         require(previousAllowance == 0);
         require(tokenUnderTest.allowance(permitOwner, accountSpender) == value);
         require(tokenUnderTest.nonces(permitOwner) == nonce + 1);
@@ -155,10 +121,7 @@ contract CE20V2Test is Test {
         tokenUnderTest.approve(accountSpender, type(uint256).max);
         vm.prank(accountSpender);
         tokenUnderTest.transferFrom(accountAlice, accountBob, 1);
-        require(
-            tokenUnderTest.allowance(accountAlice, accountSpender) ==
-                type(uint256).max
-        );
+        require(tokenUnderTest.allowance(accountAlice, accountSpender) == type(uint256).max);
     }
 
     // 8) decreaseAllowance 超额减少应当 revert（AllowanceExceeded）
@@ -166,27 +129,14 @@ contract CE20V2Test is Test {
         // 预期完整的 revert data（含参数）
         vm.startPrank(accountAlice);
         tokenUnderTest.approve(accountSpender, 1);
-        uint256 beforeAllowance = tokenUnderTest.allowance(
-            accountAlice,
-            accountSpender
-        );
+        uint256 beforeAllowance = tokenUnderTest.allowance(accountAlice, accountSpender);
 
         // 期望 CE20V2.AllowanceExceeded(uint256 allowance, uint256 needed)
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                CE20V2.AllowanceExceeded.selector,
-                beforeAllowance,
-                2
-            )
-        );
+        vm.expectRevert(abi.encodeWithSelector(CE20V2.AllowanceExceeded.selector, beforeAllowance, 2));
         tokenUnderTest.decreaseAllowance(accountSpender, 2);
 
         // revert 后额度应保持不变
-        require(
-            tokenUnderTest.allowance(accountAlice, accountSpender) ==
-                beforeAllowance,
-            "allowance changed"
-        );
+        require(tokenUnderTest.allowance(accountAlice, accountSpender) == beforeAllowance, "allowance changed");
         vm.stopPrank();
     }
 
@@ -220,19 +170,9 @@ contract CE20V2Test is Test {
         uint256 deadline = block.timestamp - 1;
 
         // 严格匹配带参错误：PermitExpired(deadline)
-        vm.expectRevert(
-            abi.encodeWithSelector(CE20V2.PermitExpired.selector, deadline)
-        );
+        vm.expectRevert(abi.encodeWithSelector(CE20V2.PermitExpired.selector, deadline));
         // v/r/s 可为任意值
-        tokenUnderTest.permit(
-            owner,
-            accountSpender,
-            value,
-            deadline,
-            27,
-            bytes32(0),
-            bytes32(0)
-        );
+        tokenUnderTest.permit(owner, accountSpender, value, deadline, 27, bytes32(0), bytes32(0));
     }
 
     // 12) permit 使用错误签名者应当 revert（InvalidSignature）
@@ -243,27 +183,14 @@ contract CE20V2Test is Test {
         uint256 nonce = tokenUnderTest.nonces(owner);
         uint256 deadline = block.timestamp + 100;
 
-        bytes32 structHash = keccak256(
-            abi.encode(
-                PERMIT_TYPEHASH,
-                owner,
-                accountSpender,
-                value,
-                nonce,
-                deadline
-            )
-        );
+        bytes32 structHash = keccak256(abi.encode(PERMIT_TYPEHASH, owner, accountSpender, value, nonce, deadline));
         bytes32 domain = tokenUnderTest.DOMAIN_SEPARATOR();
-        bytes32 digest = keccak256(
-            abi.encodePacked("\x19\x01", domain, structHash)
-        );
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", domain, structHash));
 
         uint256 wrongPrivateKey = uint256(0xBEEF);
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(wrongPrivateKey, digest);
 
-        vm.expectRevert(
-            abi.encodeWithSelector(CE20V2.InvalidSignature.selector)
-        );
+        vm.expectRevert(abi.encodeWithSelector(CE20V2.InvalidSignature.selector));
         tokenUnderTest.permit(owner, accountSpender, value, deadline, v, r, s);
     }
 
@@ -285,18 +212,11 @@ contract CE20V2Test is Test {
 
     function test_permit_zero_owner_reverts() public {
         vm.expectRevert(CE20V2.ZeroAddress.selector);
-        tokenUnderTest.permit(
-            address(0),
-            accountSpender,
-            1,
-            block.timestamp + 1,
-            27,
-            bytes32(0),
-            bytes32(0)
-        );
+        tokenUnderTest.permit(address(0), accountSpender, 1, block.timestamp + 1, 27, bytes32(0), bytes32(0));
     }
 
     uint256[] public fixtureT14_transferAmount = [0, 1e18, type(uint256).max];
+
     // 14) Fuzz 测试
     function test_fuzz_transfer(uint256 T14_transferAmount) public {
         // fuzz 金额，断言收款方余额等于转账金额
@@ -328,17 +248,10 @@ contract CE20V2Test is Test {
         v2.transferFrom(accountAlice, accountBob, 3);
 
         require(op.totalSupply() == v2.totalSupply(), "supply mismatch");
+        require(op.balanceOf(accountAlice) == v2.balanceOf(accountAlice), "alice balance mismatch");
+        require(op.balanceOf(accountBob) == v2.balanceOf(accountBob), "bob balance mismatch");
         require(
-            op.balanceOf(accountAlice) == v2.balanceOf(accountAlice),
-            "alice balance mismatch"
-        );
-        require(
-            op.balanceOf(accountBob) == v2.balanceOf(accountBob),
-            "bob balance mismatch"
-        );
-        require(
-            op.allowance(accountAlice, accountSpender) ==
-                v2.allowance(accountAlice, accountSpender),
+            op.allowance(accountAlice, accountSpender) == v2.allowance(accountAlice, accountSpender),
             "allowance mismatch"
         );
     }

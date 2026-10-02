@@ -8,7 +8,8 @@ import {IERC3525} from "./IERC3525.sol";
  * Note: the ERC-165 identifier for this interface is 0x3b741b9e.
  */
 interface IERC3525SlotEnumerable is IERC3525 {
-    /* , IERC721Enumerable */ /**
+    /* , IERC721Enumerable */
+    /**
      * @notice Get the total amount of slots stored by the contract.
      * @return The total amount of slots
      */
@@ -34,8 +35,5 @@ interface IERC3525SlotEnumerable is IERC3525 {
      * @param _index The index in the token list of the slot
      * @return The token ID at `_index` of all tokens with `_slot`
      */
-    function tokenInSlotByIndex(
-        uint256 _slot,
-        uint256 _index
-    ) external view returns (uint256);
+    function tokenInSlotByIndex(uint256 _slot, uint256 _index) external view returns (uint256);
 }
